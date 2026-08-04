@@ -43,12 +43,16 @@ export default function QRDisplay() {
     setLoading(true);
     setErrorMsg('');
     try {
-      const payload = usePhone && phoneInput ? { phoneNumber: phoneInput } : {};
+      const cleanNum = phoneInput.replace(/[^0-9]/g, '');
+      const payload = usePhone && cleanNum ? { phoneNumber: cleanNum } : {};
       const res = await fetchApi<WhatsAppStatusResponse>('/api/whatsapp/connect', {
         method: 'POST',
         body: JSON.stringify(payload),
       });
       setStatusData(res);
+      // Immediately poll status to get pairing code if available
+      setTimeout(checkStatus, 1500);
+      setTimeout(checkStatus, 3500);
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to start WhatsApp session');
     } finally {

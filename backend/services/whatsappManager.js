@@ -57,20 +57,19 @@ const connectSession = async (userId, phoneNumber = null) => {
 
     // Handle pairing code request for mobile single-phone users
     if (phoneNumber && !sock.authState.creds.registered) {
-      setTimeout(async () => {
-        try {
-          const cleanPhone = phoneNumber.replace(/[^0-9]/g, '');
-          const code = await sock.requestPairingCode(cleanPhone);
-          console.log(`Pairing Code generated for User ${userId}: ${code}`);
-          const session = activeSessions.get(userId.toString());
-          if (session) {
-            session.pairingCode = code;
-            session.status = 'pairing_ready';
-          }
-        } catch (err) {
-          console.error(`Pairing Code Error for User ${userId}:`, err);
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 2500));
+        const cleanPhone = phoneNumber.replace(/[^0-9]/g, '');
+        const code = await sock.requestPairingCode(cleanPhone);
+        console.log(`Pairing Code generated for User ${userId}: ${code}`);
+        const session = activeSessions.get(userId.toString());
+        if (session) {
+          session.pairingCode = code;
+          session.status = 'pairing_ready';
         }
-      }, 3000);
+      } catch (err) {
+        console.error(`Pairing Code Error for User ${userId}:`, err);
+      }
     }
 
     // Handle Auth Credential Updates
@@ -194,7 +193,13 @@ const connectSession = async (userId, phoneNumber = null) => {
       }
     });
 
-    return { status: 'connecting', qr: null, number: null };
+    const curSession = activeSessions.get(userId.toString());
+    return {
+      status: curSession?.status || 'connecting',
+      qr: curSession?.qr || null,
+      pairingCode: curSession?.pairingCode || null,
+      number: curSession?.number || null,
+    };
   } catch (error) {
     console.error(`WhatsApp connection setup error for User ${userId}:`, error);
     activeSessions.set(userId.toString(), {
