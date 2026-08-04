@@ -27,10 +27,23 @@ if (!fs.existsSync(SESSIONS_DIR)) {
 const connectSession = async (userId, phoneNumber = null) => {
   const userSessionPath = path.join(SESSIONS_DIR, `session_${userId}`);
 
-  // If already connected or connecting, return current status
+  // If already connected, return connected status
   const existing = activeSessions.get(userId.toString());
-  if (existing && (existing.status === 'connected' || existing.status === 'qr_ready' || existing.status === 'pairing_ready')) {
+  if (existing && existing.status === 'connected') {
     return { status: existing.status, qr: existing.qr, pairingCode: existing.pairingCode, number: existing.number };
+  }
+
+  // If already has pairingCode and no new phoneNumber provided, return existing pairingCode
+  if (existing && existing.pairingCode && !phoneNumber) {
+    return { status: existing.status, qr: existing.qr, pairingCode: existing.pairingCode, number: existing.number };
+  }
+
+  // If a new phone number is provided to pair and not yet connected, reset old socket to generate new pairing code
+  if (existing && phoneNumber) {
+    if (existing.sock) {
+      try { existing.sock.end(); } catch (e) {}
+    }
+    activeSessions.delete(userId.toString());
   }
 
   activeSessions.set(userId.toString(), {
