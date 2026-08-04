@@ -33,7 +33,7 @@ export default function LandingPage() {
           </div>
 
           <h1 className="text-4xl md:text-7xl font-extrabold tracking-tight leading-tight max-w-4xl mx-auto">
-            Automate Your <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">WhatsApp Business</span> Customer Support
+            Free <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">WhatsApp Business AI Automation</span> & Auto Reply Platform
           </h1>
 
           <p className="text-base md:text-xl text-slate-300 max-w-2xl mx-auto font-normal leading-relaxed">
