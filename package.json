@@ -1,0 +1,22 @@
+{
+  "name": "whatsapp-ai-saas-root",
+  "version": "1.0.0",
+  "description": "WhatsApp Business AI Auto-Reply Platform Root Package",
+  "main": "backend/index.js",
+  "scripts": {
+    "start": "cd backend && node index.js",
+    "build": "cd backend && npm install"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.12",
+    "axios": "^1.7.9",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.5",
+    "pino": "^9.6.0",
+    "qrcode": "^1.5.4"
+  }
+}
