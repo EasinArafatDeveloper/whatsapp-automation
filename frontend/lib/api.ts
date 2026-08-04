@@ -1,6 +1,9 @@
 import { getToken, clearAuth } from './auth';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const getApiBaseUrl = (): string => {
+  const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+  return url.replace(/\/+$/, ''); // Remove trailing slash if present
+};
 
 interface RequestOptions extends RequestInit {
   headers?: Record<string, string>;
@@ -8,6 +11,7 @@ interface RequestOptions extends RequestInit {
 
 export async function fetchApi<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const token = getToken();
+  const baseUrl = getApiBaseUrl();
   
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -18,7 +22,9 @@ export async function fetchApi<T>(endpoint: string, options: RequestOptions = {}
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+
+  const response = await fetch(`${baseUrl}${cleanEndpoint}`, {
     ...options,
     headers,
   });
