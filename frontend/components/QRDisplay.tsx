@@ -66,39 +66,39 @@ export default function QRDisplay() {
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto glass-panel p-8 rounded-2xl border border-white/10 shadow-2xl space-y-6">
-      <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+    <div className="w-full max-w-xl mx-auto bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <div className="p-2.5 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 shadow-sm">
             <QrCode className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-white">WhatsApp Connection</h2>
-            <p className="text-xs text-slate-400">Scan QR Code with WhatsApp Linked Devices</p>
+            <h2 className="text-xl font-extrabold text-slate-900">WhatsApp Connection</h2>
+            <p className="text-xs text-slate-500 font-medium">Scan QR Code with WhatsApp Linked Devices</p>
           </div>
         </div>
 
         {/* Connection Badge */}
         <div className="flex items-center gap-2">
           {statusData.status === 'connected' && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               Connected
             </span>
           )}
           {statusData.status === 'qr_ready' && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
               Scan Required
             </span>
           )}
           {statusData.status === 'connecting' && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/30">
-              <RefreshCw className="w-3 h-3 animate-spin" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+              <RefreshCw className="w-3 h-3 animate-spin text-blue-600" />
               Initializing...
             </span>
           )}
           {statusData.status === 'disconnected' && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-400 border border-slate-700">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
               Disconnected
             </span>
           )}
@@ -106,8 +106,8 @@ export default function QRDisplay() {
       </div>
 
       {errorMsg && (
-        <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 shrink-0" />
+        <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-medium flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
           <span>{errorMsg}</span>
         </div>
       )}
@@ -115,22 +115,22 @@ export default function QRDisplay() {
       {/* Render states */}
       {statusData.status === 'connected' && (
         <div className="text-center py-6 space-y-4">
-          <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 mx-auto flex items-center justify-center border border-emerald-500/30 shadow-lg shadow-emerald-500/10">
+          <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center border border-emerald-200 shadow-sm">
             <CheckCircle2 className="w-8 h-8" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white">WhatsApp Active</h3>
-            <p className="text-sm text-slate-300 font-mono mt-1">
+            <h3 className="text-lg font-extrabold text-slate-900">WhatsApp Active</h3>
+            <p className="text-sm text-slate-700 font-mono font-bold mt-1">
               {statusData.number ? `+${statusData.number}` : 'Connected Account'}
             </p>
-            <p className="text-xs text-slate-400 mt-2">
+            <p className="text-xs text-slate-500 font-medium mt-2">
               Your AI auto-reply engine is actively monitoring and answering customer messages.
             </p>
           </div>
           <button
             onClick={handleLogout}
             disabled={loading}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-sm font-semibold transition-all"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-sm font-bold transition-all shadow-sm"
           >
             <Unplug className="w-4 h-4" />
             {loading ? 'Disconnecting...' : 'Disconnect WhatsApp'}
@@ -140,15 +140,15 @@ export default function QRDisplay() {
 
       {statusData.status === 'qr_ready' && statusData.qr && (
         <div className="flex flex-col items-center justify-center space-y-4 py-4">
-          <div className="p-4 bg-white rounded-2xl shadow-xl border-4 border-emerald-500/30">
+          <div className="p-4 bg-white rounded-2xl shadow-md border-4 border-blue-500/20">
             <img src={statusData.qr} alt="WhatsApp QR Code" className="w-64 h-64 object-contain" />
           </div>
 
-          <div className="w-full bg-slate-800/80 p-4 rounded-xl border border-slate-700/60 space-y-2 text-left text-xs text-slate-300">
-            <p className="font-semibold text-emerald-400 flex items-center gap-1.5">
+          <div className="w-full bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2 text-left text-xs text-slate-700">
+            <p className="font-bold text-blue-600 flex items-center gap-1.5">
               <Smartphone className="w-4 h-4" /> How to connect:
             </p>
-            <ol className="list-decimal list-inside space-y-1 text-slate-300">
+            <ol className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
               <li>Open WhatsApp on your mobile phone</li>
               <li>Go to <strong>Settings</strong> &gt; <strong>Linked Devices</strong></li>
               <li>Tap <strong>Link a Device</strong> and scan this QR Code</li>
@@ -159,27 +159,27 @@ export default function QRDisplay() {
 
       {statusData.status === 'connecting' && (
         <div className="text-center py-12 space-y-3">
-          <RefreshCw className="w-10 h-10 text-emerald-400 animate-spin mx-auto" />
-          <p className="text-sm font-medium text-slate-300">Starting Baileys WhatsApp Session...</p>
-          <p className="text-xs text-slate-500">QR code will appear in a few seconds</p>
+          <RefreshCw className="w-10 h-10 text-blue-600 animate-spin mx-auto" />
+          <p className="text-sm font-bold text-slate-900">Starting Baileys WhatsApp Session...</p>
+          <p className="text-xs text-slate-500 font-medium">QR code will appear in a few seconds</p>
         </div>
       )}
 
       {statusData.status === 'disconnected' && (
         <div className="text-center py-8 space-y-4">
-          <div className="w-16 h-16 rounded-full bg-slate-800 text-slate-400 mx-auto flex items-center justify-center border border-slate-700">
-            <QrCode className="w-8 h-8" />
+          <div className="w-16 h-16 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center border border-slate-200">
+            <QrCode className="w-8 h-8 text-blue-600" />
           </div>
           <div>
-            <h3 className="text-base font-semibold text-white">No Active Session</h3>
-            <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1">
+            <h3 className="text-base font-extrabold text-slate-900">No Active Session</h3>
+            <p className="text-xs text-slate-500 font-medium max-w-sm mx-auto mt-1">
               Click the button below to generate a new session and display a QR code for linking your business phone.
             </p>
           </div>
           <button
             onClick={handleConnect}
             disabled={loading}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm transition-all shadow-lg shadow-emerald-500/25 active:scale-95 disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-all shadow-md shadow-blue-600/20 active:scale-95 disabled:opacity-50"
           >
             {loading ? (
               <>

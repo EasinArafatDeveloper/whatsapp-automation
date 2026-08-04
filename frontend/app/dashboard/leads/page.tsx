@@ -53,7 +53,7 @@ export default function LeadsDashboardPage() {
 
   useEffect(() => {
     loadLeads();
-    const interval = setInterval(loadLeads, 5000); // refresh every 5 seconds
+    const interval = setInterval(loadLeads, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -101,97 +101,68 @@ export default function LeadsDashboardPage() {
     return matchesSearch && matchesStatus;
   });
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'New':
-        return 'bg-blue-500/10 text-blue-400 border-blue-500/30';
-      case 'In Progress':
-        return 'bg-amber-500/10 text-amber-400 border-amber-500/30';
-      case 'Confirmed':
-        return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30';
-      case 'Closed':
-        return 'bg-slate-800 text-slate-400 border-slate-700';
-      default:
-        return 'bg-slate-800 text-slate-400 border-slate-700';
-    }
-  };
-
   return (
-    <div className="space-y-8">
-      {/* Top Banner */}
-      <div className="glass-panel p-8 rounded-3xl border border-white/10 relative overflow-hidden shadow-2xl">
-        <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="space-y-6">
+      {/* Header Banner */}
+      <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+            <Users className="w-3.5 h-3.5 text-blue-600" /> Customer CRM
+          </span>
+          <h1 className="text-3xl font-extrabold text-slate-900 mt-2">Captured Customer Leads</h1>
+          <p className="text-sm text-slate-600 font-medium">
+            Customer details, phone numbers, locations, and chat summaries automatically captured by AI.
+          </p>
+        </div>
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <Users className="w-3.5 h-3.5" /> Customer Intelligence CRM
-            </span>
-            <h1 className="text-3xl font-extrabold text-white">Captured Customer Leads</h1>
-            <p className="text-sm text-slate-400 max-w-xl">
-              Automatic lead details captured by DeepSeek AI during live WhatsApp conversations.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="glass-card px-4 py-3 rounded-2xl border border-white/10 text-center">
-              <span className="block text-2xl font-extrabold text-white">{leads.length}</span>
-              <span className="text-[10px] text-slate-400 uppercase font-semibold">Total Leads</span>
-            </div>
-            <div className="glass-card px-4 py-3 rounded-2xl border border-white/10 text-center">
-              <span className="block text-2xl font-extrabold text-emerald-400">
-                {leads.filter((l) => l.status === 'Confirmed' || l.status === 'New').length}
-              </span>
-              <span className="text-[10px] text-emerald-300 uppercase font-semibold">Active Leads</span>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="bg-blue-50 px-4 py-2.5 rounded-2xl border border-blue-100 text-center">
+            <p className="text-xs font-bold text-slate-500 uppercase">Total Leads</p>
+            <p className="text-xl font-extrabold text-blue-600">{leads.length}</p>
           </div>
         </div>
       </div>
 
       {msg && (
         <div
-          className={`p-4 rounded-2xl text-sm font-medium flex items-center gap-3 border ${
+          className={`p-4 rounded-2xl text-sm font-semibold flex items-center gap-3 border shadow-sm ${
             msg.type === 'success'
-              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-              : 'bg-red-500/10 border-red-500/30 text-red-400'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+              : 'bg-rose-50 border-rose-200 text-rose-800'
           }`}
         >
           {msg.type === 'success' ? (
-            <CheckCircle2 className="w-5 h-5 shrink-0" />
+            <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600" />
           ) : (
-            <AlertCircle className="w-5 h-5 shrink-0" />
+            <AlertCircle className="w-5 h-5 shrink-0 text-rose-600" />
           )}
           <span>{msg.text}</span>
         </div>
       )}
 
       {/* Filter & Search Toolbar */}
-      <div className="glass-panel p-6 rounded-3xl border border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
-        {/* Search */}
-        <div className="relative w-full md:w-80">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search leads by name, phone, location..."
-            className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-900/90 border border-slate-700/80 text-white text-xs md:text-sm focus:border-emerald-400 focus:outline-none"
+            placeholder="Search by customer name, phone, location, or summary..."
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:border-blue-600 focus:outline-none font-medium"
           />
         </div>
 
-        {/* Status Filters */}
-        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-          <span className="text-xs font-semibold text-slate-400 flex items-center gap-1 mr-1">
-            <Filter className="w-3.5 h-3.5" /> Filter:
-          </span>
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+          <Filter className="w-4 h-4 text-slate-400 shrink-0" />
           {['All', 'New', 'In Progress', 'Confirmed', 'Closed'].map((st) => (
             <button
               key={st}
               onClick={() => setStatusFilter(st)}
-              className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
                 statusFilter === st
-                  ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                  : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
               }`}
             >
               {st}
@@ -200,18 +171,17 @@ export default function LeadsDashboardPage() {
         </div>
       </div>
 
-      {/* Leads Grid & Details Modal */}
+      {/* Leads Table / Grid */}
       {loading ? (
-        <div className="text-center py-12 glass-panel rounded-3xl text-slate-400">
-          <div className="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-          <p className="text-sm">Loading captured customer leads...</p>
+        <div className="bg-white p-12 rounded-3xl border border-slate-200 text-center text-slate-500 font-medium">
+          Loading customer leads...
         </div>
       ) : filteredLeads.length === 0 ? (
-        <div className="glass-panel p-12 rounded-3xl text-center space-y-3 border border-white/10">
-          <Users className="w-10 h-10 text-slate-600 mx-auto" />
-          <h3 className="text-lg font-bold text-white">No Customer Leads Found</h3>
-          <p className="text-xs text-slate-400 max-w-sm mx-auto">
-            When customers send inquiries on WhatsApp, AI will automatically parse and capture their contact info & requirements here!
+        <div className="bg-white p-16 rounded-3xl border border-slate-200 text-center space-y-3">
+          <Users className="w-12 h-12 text-slate-300 mx-auto" />
+          <h3 className="text-base font-extrabold text-slate-900">No Customer Leads Found</h3>
+          <p className="text-xs text-slate-500 font-medium max-w-md mx-auto">
+            When customers message your linked WhatsApp number and share details, AI will automatically log them here.
           </p>
         </div>
       ) : (
@@ -219,178 +189,149 @@ export default function LeadsDashboardPage() {
           {filteredLeads.map((lead) => (
             <div
               key={lead._id}
-              className="glass-panel p-6 rounded-3xl border border-white/10 space-y-4 hover:border-emerald-500/40 transition-all flex flex-col justify-between shadow-xl group"
+              className="bg-white p-6 rounded-3xl border border-slate-200 space-y-4 hover:border-blue-300 transition-all shadow-sm relative flex flex-col justify-between"
             >
               <div className="space-y-3">
-                {/* Header */}
-                <div className="flex items-start justify-between gap-3 border-b border-slate-800 pb-3">
-                  <div className="overflow-hidden">
-                    <h3 className="font-bold text-base text-white truncate group-hover:text-emerald-400 transition-colors">
-                      {lead.customerName}
-                    </h3>
-                    <p className="text-xs text-slate-400 font-mono flex items-center gap-1.5 mt-0.5">
-                      <Phone className="w-3.5 h-3.5 text-emerald-400" /> {lead.customerNumber}
-                    </p>
-                  </div>
-
+                <div className="flex items-center justify-between">
                   <span
-                    className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border shrink-0 ${getStatusBadge(
-                      lead.status
-                    )}`}
+                    className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                      lead.status === 'New'
+                        ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                        : lead.status === 'In Progress'
+                        ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                        : lead.status === 'Confirmed'
+                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                        : 'bg-slate-100 text-slate-600 border border-slate-200'
+                    }`}
                   >
                     {lead.status}
                   </span>
+
+                  <button
+                    onClick={() => handleDeleteLead(lead._id)}
+                    className="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
 
-                {/* Summary & Location Badges */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 font-semibold text-xs border border-emerald-500/20">
-                      {lead.summary}
-                    </span>
+                <div>
+                  <h3 className="text-base font-extrabold text-slate-900 truncate">
+                    {lead.customerName || 'WhatsApp Customer'}
+                  </h3>
+                  <div className="flex items-center gap-1.5 text-xs text-slate-600 font-mono mt-0.5">
+                    <Phone className="w-3.5 h-3.5 text-blue-600" />
+                    +{lead.customerNumber}
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 pt-2 border-t border-slate-100 text-xs">
+                  <div className="flex items-start gap-1.5 text-slate-700 font-medium">
+                    <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0 mt-0.5" />
+                    <span className="truncate">{lead.location || 'Location Not Specified'}</span>
                   </div>
 
-                  {lead.location && lead.location !== 'Not specified' && (
-                    <p className="text-xs text-slate-300 flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-amber-400" /> Location: {lead.location}
-                    </p>
-                  )}
-
-                  {lead.lastMessage && (
-                    <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-slate-300 italic line-clamp-2">
-                      "{lead.lastMessage}"
-                    </div>
-                  )}
+                  <div className="flex items-start gap-1.5 text-slate-600 font-medium bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                    <FileText className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
+                    <span className="line-clamp-2">{lead.summary}</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Card Footer Actions */}
-              <div className="pt-4 border-t border-slate-800 flex items-center justify-between gap-2">
-                <span className="text-[10px] text-slate-500 flex items-center gap-1">
-                  <Clock className="w-3 h-3" /> {new Date(lead.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </span>
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-2 mt-4">
+                <button
+                  onClick={() => setSelectedLead(lead)}
+                  className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors"
+                >
+                  View Details
+                </button>
 
-                <div className="flex items-center gap-2">
-                  {/* WhatsApp Direct Action Button */}
-                  <a
-                    href={`https://wa.me/${lead.customerNumber.replace('+', '')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 text-xs font-semibold transition-colors flex items-center gap-1"
-                    title="Open WhatsApp Chat"
-                  >
-                    <MessageSquare className="w-3.5 h-3.5" />
-                  </a>
-
-                  {/* View Details */}
-                  <button
-                    onClick={() => setSelectedLead(lead)}
-                    className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-colors"
-                  >
-                    Details
-                  </button>
-
-                  {/* Delete */}
-                  <button
-                    onClick={() => handleDeleteLead(lead._id)}
-                    className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition-colors"
-                    title="Delete Lead"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+                <a
+                  href={`https://wa.me/${lead.customerNumber}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-all shadow-sm"
+                >
+                  <MessageSquare className="w-3.5 h-3.5" /> Chat on WA
+                </a>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Lead Details Modal */}
+      {/* Lead Detail Modal */}
       {selectedLead && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="glass-panel w-full max-w-xl p-8 rounded-3xl border border-white/10 space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-2xl w-full border border-slate-200 shadow-2xl overflow-hidden space-y-6 max-h-[90vh] flex flex-col">
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
               <div>
-                <h3 className="text-xl font-bold text-white">{selectedLead.customerName}</h3>
-                <p className="text-xs text-slate-400 font-mono mt-0.5">
-                  Phone: {selectedLead.customerNumber}
-                </p>
+                <h3 className="text-xl font-extrabold text-slate-900">
+                  {selectedLead.customerName || 'Customer Details'}
+                </h3>
+                <p className="text-xs text-slate-500 font-mono font-medium">+{selectedLead.customerNumber}</p>
               </div>
 
               <button
                 onClick={() => setSelectedLead(null)}
-                className="text-slate-400 hover:text-white text-sm font-bold p-2"
+                className="text-slate-400 hover:text-slate-700 font-bold text-lg px-2"
               >
                 ✕
               </button>
             </div>
 
-            {/* Status Change Selector */}
-            <div className="space-y-2">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
-                Lead Status
-              </label>
-              <select
-                value={selectedLead.status}
-                onChange={(e) => handleStatusChange(selectedLead._id, e.target.value)}
-                className="w-full px-4 py-3 rounded-2xl bg-slate-900 border border-slate-700 text-white text-sm focus:border-emerald-400 focus:outline-none"
-              >
-                <option value="New">New</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Confirmed">Confirmed</option>
-                <option value="Closed">Closed</option>
-              </select>
-            </div>
+            <div className="p-6 space-y-6 overflow-y-auto flex-1">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                  <p className="text-[10px] font-bold uppercase text-slate-500">Location</p>
+                  <p className="text-sm font-bold text-slate-900 mt-1">
+                    {selectedLead.location || 'N/A'}
+                  </p>
+                </div>
 
-            {/* Requirement Summary */}
-            <div className="space-y-1">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400">
-                Inquiry Summary
-              </label>
-              <p className="text-sm font-semibold text-emerald-400 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">
-                {selectedLead.summary}
-              </p>
-            </div>
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                  <p className="text-[10px] font-bold uppercase text-slate-500">Lead Status</p>
+                  <select
+                    value={selectedLead.status}
+                    onChange={(e) => handleStatusChange(selectedLead._id, e.target.value)}
+                    className="mt-1 bg-white border border-slate-300 rounded-xl px-2.5 py-1 text-xs font-bold text-slate-900 focus:outline-none"
+                  >
+                    <option value="New">New</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="Closed">Closed</option>
+                  </select>
+                </div>
+              </div>
 
-            {/* Location */}
-            <div className="space-y-1">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400">
-                Extracted Location
-              </label>
-              <p className="text-sm font-semibold text-white bg-slate-900 p-3 rounded-xl border border-slate-800">
-                {selectedLead.location}
-              </p>
-            </div>
+              <div className="space-y-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-600">Requirement Summary</p>
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-sm text-slate-800 font-medium">
+                  {selectedLead.summary}
+                </div>
+              </div>
 
-            {/* Full Conversation & Details */}
-            <div className="space-y-2">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <FileText className="w-4 h-4 text-emerald-400" /> Full Captured Chat History
-              </label>
-              <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-200 whitespace-pre-wrap leading-relaxed max-h-60 overflow-y-auto font-mono">
-                {selectedLead.details || 'No detailed conversation log recorded.'}
+              <div className="space-y-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-600">Full Chat Conversation Details</p>
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs font-mono text-slate-800 leading-relaxed whitespace-pre-wrap max-h-48 overflow-y-auto">
+                  {selectedLead.details}
+                </div>
               </div>
             </div>
 
-            {/* Action Bar */}
-            <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
+            <div className="p-6 border-t border-slate-100 flex items-center justify-between bg-slate-50">
+              <span className="text-xs text-slate-500 font-medium">
+                Captured: {new Date(selectedLead.createdAt).toLocaleString()}
+              </span>
+
               <a
-                href={`https://wa.me/${selectedLead.customerNumber.replace('+', '')}`}
+                href={`https://wa.me/${selectedLead.customerNumber}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all shadow-md shadow-emerald-500/20"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-all shadow-sm"
               >
-                <MessageSquare className="w-4 h-4" />
-                Chat Directly on WhatsApp
-                <ExternalLink className="w-3.5 h-3.5" />
+                <ExternalLink className="w-4 h-4" /> Open Direct WhatsApp Chat
               </a>
-
-              <button
-                onClick={() => setSelectedLead(null)}
-                className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold"
-              >
-                Close
-              </button>
             </div>
           </div>
         </div>

@@ -4,7 +4,7 @@ import './globals.css';
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://whatsapp-automation.vercel.app';
 
 export const viewport: Viewport = {
-  themeColor: '#25D366',
+  themeColor: '#2563eb',
   width: 'device-width',
   initialScale: 1,
 };
@@ -89,14 +89,14 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="light">
       <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="antialiased selection:bg-emerald-500 selection:text-white">
+      <body className="antialiased selection:bg-blue-600 selection:text-white bg-slate-50 text-slate-900">
         {children}
       </body>
     </html>
