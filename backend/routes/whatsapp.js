@@ -10,7 +10,8 @@ const {
 // POST /api/whatsapp/connect - Start session
 router.post('/connect', authMiddleware, async (req, res) => {
   try {
-    const sessionData = await connectSession(req.user.id);
+    const { phoneNumber } = req.body || {};
+    const sessionData = await connectSession(req.user.id, phoneNumber);
     res.json({ message: 'WhatsApp session connection initiated', ...sessionData });
   } catch (error) {
     console.error('WhatsApp Connect Route Error:', error);

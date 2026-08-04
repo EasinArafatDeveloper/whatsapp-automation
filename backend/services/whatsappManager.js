@@ -24,18 +24,19 @@ if (!fs.existsSync(SESSIONS_DIR)) {
 /**
  * Initialize or retrieve WhatsApp Baileys Session for a User
  */
-const connectSession = async (userId) => {
+const connectSession = async (userId, phoneNumber = null) => {
   const userSessionPath = path.join(SESSIONS_DIR, `session_${userId}`);
 
   // If already connected or connecting, return current status
   const existing = activeSessions.get(userId.toString());
-  if (existing && (existing.status === 'connected' || existing.status === 'qr_ready')) {
-    return { status: existing.status, qr: existing.qr, number: existing.number };
+  if (existing && (existing.status === 'connected' || existing.status === 'qr_ready' || existing.status === 'pairing_ready')) {
+    return { status: existing.status, qr: existing.qr, pairingCode: existing.pairingCode, number: existing.number };
   }
 
   activeSessions.set(userId.toString(), {
     status: 'connecting',
     qr: null,
+    pairingCode: null,
     number: null,
     sock: null,
   });
@@ -53,6 +54,24 @@ const connectSession = async (userId) => {
     });
 
     activeSessions.get(userId.toString()).sock = sock;
+
+    // Handle pairing code request for mobile single-phone users
+    if (phoneNumber && !sock.authState.creds.registered) {
+      setTimeout(async () => {
+        try {
+          const cleanPhone = phoneNumber.replace(/[^0-9]/g, '');
+          const code = await sock.requestPairingCode(cleanPhone);
+          console.log(`Pairing Code generated for User ${userId}: ${code}`);
+          const session = activeSessions.get(userId.toString());
+          if (session) {
+            session.pairingCode = code;
+            session.status = 'pairing_ready';
+          }
+        } catch (err) {
+          console.error(`Pairing Code Error for User ${userId}:`, err);
+        }
+      }, 3000);
+    }
 
     // Handle Auth Credential Updates
     sock.ev.on('creds.update', saveCreds);
@@ -213,11 +232,12 @@ const restoreSessionsOnStartup = async () => {
 const getSessionStatus = (userId) => {
   const session = activeSessions.get(userId.toString());
   if (!session) {
-    return { status: 'disconnected', qr: null, number: null };
+    return { status: 'disconnected', qr: null, pairingCode: null, number: null };
   }
   return {
     status: session.status,
     qr: session.qr,
+    pairingCode: session.pairingCode,
     number: session.number,
   };
 };
