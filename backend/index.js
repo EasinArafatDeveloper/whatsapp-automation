@@ -26,7 +26,11 @@ app.use('/api/business', businessRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
 app.use('/api/leads', leadRoutes);
 
-// Health check endpoint
+// Root & Health check endpoints
+app.get('/', (req, res) => {
+  res.json({ status: 'active', message: 'WhatsApp Business AI SaaS Backend API is Live!' });
+});
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date() });
 });
