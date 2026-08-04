@@ -38,12 +38,16 @@ const connectSession = async (userId, phoneNumber = null) => {
     return { status: existing.status, qr: existing.qr, pairingCode: existing.pairingCode, number: existing.number };
   }
 
-  // If a new phone number is provided to pair and not yet connected, reset old socket to generate new pairing code
-  if (existing && phoneNumber) {
-    if (existing.sock) {
+  // If a new phone number is provided to pair and not yet connected, reset old session folder to trigger fresh pairing code
+  if (phoneNumber && (!existing || existing.status !== 'connected')) {
+    if (existing && existing.sock) {
       try { existing.sock.end(); } catch (e) {}
     }
     activeSessions.delete(userId.toString());
+
+    if (fs.existsSync(userSessionPath)) {
+      try { fs.rmSync(userSessionPath, { recursive: true, force: true }); } catch (e) {}
+    }
   }
 
   activeSessions.set(userId.toString(), {
@@ -63,7 +67,7 @@ const connectSession = async (userId, phoneNumber = null) => {
       auth: state,
       printQRInTerminal: false,
       logger: pino({ level: 'silent' }),
-      browser: ['WhatsApp AI SaaS', 'Chrome', '1.0.0'],
+      browser: ['Ubuntu', 'Chrome', '20.0.04'],
     });
 
     activeSessions.get(userId.toString()).sock = sock;
@@ -71,7 +75,7 @@ const connectSession = async (userId, phoneNumber = null) => {
     // Handle pairing code request for mobile single-phone users
     if (phoneNumber && !sock.authState.creds.registered) {
       try {
-        await new Promise((resolve) => setTimeout(resolve, 2500));
+        await new Promise((resolve) => setTimeout(resolve, 3000));
         const cleanPhone = phoneNumber.replace(/[^0-9]/g, '');
         const code = await sock.requestPairingCode(cleanPhone);
         console.log(`Pairing Code generated for User ${userId}: ${code}`);
