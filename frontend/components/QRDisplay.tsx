@@ -50,9 +50,10 @@ export default function QRDisplay() {
         body: JSON.stringify(payload),
       });
       setStatusData(res);
-      // Immediately poll status to get pairing code if available
-      setTimeout(checkStatus, 1500);
-      setTimeout(checkStatus, 3500);
+      // Immediately poll status every second for 5 seconds to catch QR/pairing code fast
+      for (let i = 1; i <= 5; i++) {
+        setTimeout(checkStatus, i * 1000);
+      }
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to start WhatsApp session');
     } finally {
@@ -195,13 +196,23 @@ export default function QRDisplay() {
                       {statusData.pairingCode}
                     </div>
 
-                    <button
-                      onClick={() => handleCopyCode(statusData.pairingCode || '')}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs shadow-sm hover:bg-blue-700 transition-all active:scale-95"
-                    >
-                      <Copy className="w-4 h-4" />
-                      {copied ? 'Copied Code!' : 'Copy Code'}
-                    </button>
+                    <div className="flex items-center justify-center gap-2 flex-wrap pt-1">
+                      <button
+                        onClick={() => handleCopyCode(statusData.pairingCode || '')}
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs shadow-sm hover:bg-blue-700 transition-all active:scale-95"
+                      >
+                        <Copy className="w-4 h-4" />
+                        {copied ? 'Copied Code!' : 'Copy Code'}
+                      </button>
+                      <button
+                        onClick={handleLogout}
+                        disabled={loading}
+                        className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold text-xs transition-all active:scale-95"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
+                        Reset / New Code
+                      </button>
+                    </div>
                   </div>
 
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left text-xs space-y-2 text-slate-700 font-medium">
@@ -259,10 +270,21 @@ export default function QRDisplay() {
           {/* TAB 2: QR Code Scan Method */}
           {activeTab === 'qr' && (
             <div className="space-y-4 pt-2">
-              {statusData.status === 'qr_ready' && statusData.qr ? (
+              {statusData.qr ? (
                 <div className="flex flex-col items-center justify-center space-y-4 py-2">
                   <div className="p-4 bg-white rounded-2xl shadow-md border-4 border-blue-500/20">
                     <img src={statusData.qr} alt="WhatsApp QR Code" className="w-64 h-64 object-contain" />
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleConnect(false)}
+                      disabled={loading}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs border border-slate-300 transition-all active:scale-95"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+                      Refresh QR Code
+                    </button>
                   </div>
 
                   <div className="w-full bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2 text-left text-xs text-slate-700">

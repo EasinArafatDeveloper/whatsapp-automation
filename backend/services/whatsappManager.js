@@ -2,7 +2,7 @@ const {
   default: makeWASocket,
   useMultiFileAuthState,
   DisconnectReason,
-  fetchLatestBaileysVersion,
+  Browsers,
 } = require('@whiskeysockets/baileys');
 const pino = require('pino');
 const QRCode = require('qrcode');
@@ -13,7 +13,7 @@ const Business = require('../models/Business');
 const { generateResponse } = require('./aiService');
 const { updateCustomerLead } = require('./leadService');
 
-// Map to hold active sessions: userId -> { sock, status, qr, number }
+// Map to hold active sessions: userId -> { sock, status, qr, pairingCode, number }
 const activeSessions = new Map();
 
 const SESSIONS_DIR = path.join(__dirname, '../sessions');
@@ -25,108 +25,110 @@ if (!fs.existsSync(SESSIONS_DIR)) {
  * Initialize or retrieve WhatsApp Baileys Session for a User
  */
 const connectSession = async (userId, phoneNumber = null) => {
+  const strUserId = userId.toString();
   const userSessionPath = path.join(SESSIONS_DIR, `session_${userId}`);
 
-  // If already connected, return connected status
-  const existing = activeSessions.get(userId.toString());
+  const existing = activeSessions.get(strUserId);
+
+  // 1. If already connected, return connected session status
   if (existing && existing.status === 'connected') {
-    return { status: existing.status, qr: existing.qr, pairingCode: existing.pairingCode, number: existing.number };
+    return {
+      status: existing.status,
+      qr: existing.qr,
+      pairingCode: existing.pairingCode,
+      number: existing.number,
+    };
   }
 
-  // If already has pairingCode and no new phoneNumber provided, return existing pairingCode
-  if (existing && existing.pairingCode && !phoneNumber) {
-    return { status: existing.status, qr: existing.qr, pairingCode: existing.pairingCode, number: existing.number };
+  // 2. If already pairing ready and no new phone number provided, return existing session info
+  if (existing && existing.pairingCode && !phoneNumber && existing.status === 'pairing_ready') {
+    return {
+      status: existing.status,
+      qr: existing.qr,
+      pairingCode: existing.pairingCode,
+      number: existing.number,
+    };
   }
 
-  // If a new phone number is provided to pair and not yet connected, reset old session folder to trigger fresh pairing code
-  if (phoneNumber && (!existing || existing.status !== 'connected')) {
+  // 3. Reset session folder if a new request is initiated with phone number OR clean restart requested
+  if (phoneNumber || (existing && existing.status === 'disconnected')) {
     if (existing && existing.sock) {
-      try { existing.sock.end(); } catch (e) {}
+      try {
+        existing.sock.ev.removeAllListeners('connection.update');
+        existing.sock.ev.removeAllListeners('creds.update');
+        existing.sock.end();
+      } catch (e) {}
     }
-    activeSessions.delete(userId.toString());
+    activeSessions.delete(strUserId);
 
     if (fs.existsSync(userSessionPath)) {
-      try { fs.rmSync(userSessionPath, { recursive: true, force: true }); } catch (e) {}
+      try {
+        fs.rmSync(userSessionPath, { recursive: true, force: true });
+      } catch (e) {}
     }
   }
 
-  activeSessions.set(userId.toString(), {
+  // Set initial session state in map
+  const sessionData = activeSessions.get(strUserId) || {
     status: 'connecting',
     qr: null,
     pairingCode: null,
     number: null,
     sock: null,
-  });
+  };
+  if (sessionData.status !== 'pairing_ready' && sessionData.status !== 'qr_ready') {
+    sessionData.status = 'connecting';
+  }
+  activeSessions.set(strUserId, sessionData);
 
   try {
     const { state, saveCreds } = await useMultiFileAuthState(userSessionPath);
-    const { version } = await fetchLatestBaileysVersion();
 
     const sock = makeWASocket({
-      version,
       auth: state,
       printQRInTerminal: false,
       logger: pino({ level: 'silent' }),
       browser: ['Ubuntu', 'Chrome', '20.0.04'],
+      markOnlineOnConnect: false,
     });
 
-    activeSessions.get(userId.toString()).sock = sock;
+    sessionData.sock = sock;
 
-    // Handle pairing code request for mobile single-phone users
-    if (phoneNumber && !sock.authState.creds.registered) {
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-        const cleanPhone = phoneNumber.replace(/[^0-9]/g, '');
-        const code = await sock.requestPairingCode(cleanPhone);
-        console.log(`Pairing Code generated for User ${userId}: ${code}`);
-        const session = activeSessions.get(userId.toString());
-        if (session) {
-          session.pairingCode = code;
-          session.status = 'pairing_ready';
-        }
-      } catch (err) {
-        console.error(`Pairing Code Error for User ${userId}:`, err);
-      }
-    }
-
-    // Handle Auth Credential Updates
+    // Immediately attach credentials saver
     sock.ev.on('creds.update', saveCreds);
 
-    // Handle Connection Updates (QR code, open, close)
+    // Attach connection listener
     sock.ev.on('connection.update', async (update) => {
       const { connection, lastDisconnect, qr } = update;
-      const session = activeSessions.get(userId.toString());
+      const session = activeSessions.get(strUserId);
 
       if (qr) {
         try {
           const qrBase64 = await QRCode.toDataURL(qr);
           if (session) {
             session.qr = qrBase64;
-            session.status = 'qr_ready';
+            // Only set status to qr_ready if not currently pairing via phone code
+            if (session.status !== 'pairing_ready') {
+              session.status = 'qr_ready';
+            }
           }
         } catch (err) {
-          console.error(`QR Code generation error for user ${userId}:`, err);
-        }
-      }
-
-      if (connection === 'connecting') {
-        if (session && session.status !== 'qr_ready') {
-          session.status = 'connecting';
+          console.error(`QR Code conversion error for User ${userId}:`, err);
         }
       }
 
       if (connection === 'open') {
-        console.log(`WhatsApp connection opened for User ID: ${userId}`);
+        console.log(`WhatsApp socket connection OPEN for User ID: ${userId}`);
         const userJid = sock.user?.id || '';
         const whatsappNum = userJid.split(':')[0] || userJid.split('@')[0];
 
         if (session) {
           session.status = 'connected';
           session.qr = null;
+          session.pairingCode = null;
           session.number = whatsappNum;
         }
 
-        // Update database status
         await User.findByIdAndUpdate(userId, {
           whatsappConnected: true,
           whatsappNumber: whatsappNum,
@@ -134,31 +136,44 @@ const connectSession = async (userId, phoneNumber = null) => {
       }
 
       if (connection === 'close') {
-        const shouldReconnect =
-          lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
+        const statusCode = lastDisconnect?.error?.output?.statusCode;
+        const isLoggedOut = statusCode === DisconnectReason.loggedOut;
         console.log(
           `Connection closed for User ${userId}. Reason: ${
             lastDisconnect?.error?.message || 'Unknown'
-          }. Reconnecting: ${shouldReconnect}`
+          } (code: ${statusCode}). LoggedOut: ${isLoggedOut}`
         );
 
-        if (session) {
-          session.status = 'disconnected';
-          session.qr = null;
-        }
-
-        await User.findByIdAndUpdate(userId, {
-          whatsappConnected: false,
-        });
-
-        if (shouldReconnect) {
-          setTimeout(() => connectSession(userId), 3000);
-        } else {
-          // Logged out clean up
+        if (isLoggedOut) {
+          await User.findByIdAndUpdate(userId, { whatsappConnected: false });
           logoutSession(userId);
+        } else {
+          // If disconnected due to restartRequired (515) or temporary network glitch, reconnect automatically
+          setTimeout(() => {
+            connectSession(userId);
+          }, 3000);
         }
       }
     });
+
+    // Request pairing code IMMEDIATELY after 1 second delay
+    if (phoneNumber && !sock.authState.creds.registered) {
+      setTimeout(async () => {
+        try {
+          const cleanPhone = phoneNumber.replace(/[^0-9]/g, '');
+          console.log(`Requesting pairing code for number: ${cleanPhone}`);
+          const code = await sock.requestPairingCode(cleanPhone);
+          console.log(`Pairing code generated for User ${userId}: ${code}`);
+          const session = activeSessions.get(strUserId);
+          if (session) {
+            session.pairingCode = code;
+            session.status = 'pairing_ready';
+          }
+        } catch (err) {
+          console.error(`Pairing code request error for User ${userId}:`, err);
+        }
+      }, 1000);
+    }
 
     // Handle Incoming Messages
     sock.ev.on('messages.upsert', async (m) => {
@@ -166,16 +181,13 @@ const connectSession = async (userId, phoneNumber = null) => {
         if (m.type !== 'notify') return;
 
         for (const msg of m.messages) {
-          // Ignore self messages or status broadcasts
           if (!msg.message || msg.key.fromMe || msg.key.remoteJid === 'status@broadcast') {
             continue;
           }
 
-          // Ignore group chats in MVP
           const isGroup = msg.key.remoteJid.endsWith('@g.us');
           if (isGroup) continue;
 
-          // Extract plain text message
           const textMessage =
             msg.message.conversation ||
             msg.message.extendedTextMessage?.text ||
@@ -189,19 +201,15 @@ const connectSession = async (userId, phoneNumber = null) => {
           const senderJid = msg.key.remoteJid;
           console.log(`[User ${userId}] Incoming WhatsApp Msg from ${senderJid}: "${textMessage}"`);
 
-          // Fetch business settings for user
           const business = await Business.findOne({ user: userId });
-
           const pushName = msg.pushName || '';
 
-          // Generate AI or Fallback response
           const replyText = await generateResponse(userId, senderJid, textMessage, business, pushName);
 
           if (replyText) {
             await sock.sendMessage(senderJid, { text: replyText });
             console.log(`[User ${userId}] Auto-Replied to ${senderJid}: "${replyText}"`);
 
-            // Auto-Save / Update Customer Lead in DB
             updateCustomerLead(userId, senderJid, pushName, textMessage, replyText);
           }
         }
@@ -210,7 +218,7 @@ const connectSession = async (userId, phoneNumber = null) => {
       }
     });
 
-    const curSession = activeSessions.get(userId.toString());
+    const curSession = activeSessions.get(strUserId);
     return {
       status: curSession?.status || 'connecting',
       qr: curSession?.qr || null,
@@ -219,13 +227,14 @@ const connectSession = async (userId, phoneNumber = null) => {
     };
   } catch (error) {
     console.error(`WhatsApp connection setup error for User ${userId}:`, error);
-    activeSessions.set(userId.toString(), {
+    activeSessions.set(strUserId, {
       status: 'disconnected',
       qr: null,
+      pairingCode: null,
       number: null,
       sock: null,
     });
-    return { status: 'disconnected', qr: null, number: null };
+    return { status: 'disconnected', qr: null, pairingCode: null, number: null };
   }
 };
 
@@ -268,21 +277,25 @@ const getSessionStatus = (userId) => {
  * Logout and Clean Up Session
  */
 const logoutSession = async (userId) => {
-  const session = activeSessions.get(userId.toString());
+  const strUserId = userId.toString();
+  const session = activeSessions.get(strUserId);
   if (session && session.sock) {
     try {
+      session.sock.ev.removeAllListeners('connection.update');
+      session.sock.ev.removeAllListeners('creds.update');
       await session.sock.logout();
     } catch (err) {
       // Ignore logout errors
     }
   }
 
-  activeSessions.delete(userId.toString());
+  activeSessions.delete(strUserId);
 
-  // Remove stored session directory
   const userSessionPath = path.join(SESSIONS_DIR, `session_${userId}`);
   if (fs.existsSync(userSessionPath)) {
-    fs.rmSync(userSessionPath, { recursive: true, force: true });
+    try {
+      fs.rmSync(userSessionPath, { recursive: true, force: true });
+    } catch (e) {}
   }
 
   await User.findByIdAndUpdate(userId, {
@@ -290,7 +303,7 @@ const logoutSession = async (userId) => {
     whatsappNumber: null,
   });
 
-  return { status: 'disconnected', qr: null, number: null };
+  return { status: 'disconnected', qr: null, pairingCode: null, number: null };
 };
 
 module.exports = {
@@ -299,4 +312,6 @@ module.exports = {
   logoutSession,
   restoreSessionsOnStartup,
 };
+
+
 

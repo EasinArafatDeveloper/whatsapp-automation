@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import LiveSupportWidget from '@/components/LiveSupportWidget';
 import './globals.css';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://whatsapp-automation.vercel.app';
@@ -101,6 +102,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased selection:bg-blue-600 selection:text-white bg-slate-50 text-slate-900">
         {children}
+        <LiveSupportWidget />
       </body>
     </html>
   );
