@@ -17,28 +17,53 @@ router.get('/', authMiddleware, async (req, res) => {
   }
 });
 
+// Helper function to update business profile fields
+const updateBusinessFields = (business, data) => {
+  const { businessName, description, products, faq, policies, tone, accountType, toneMode, customInstructions, aiEnabled } = data;
+  if (businessName !== undefined) business.businessName = businessName;
+  if (description !== undefined) business.description = description;
+  if (products !== undefined) business.products = products;
+  if (faq !== undefined) business.faq = faq;
+  if (policies !== undefined) business.policies = policies;
+  if (tone !== undefined) business.tone = tone;
+  if (accountType !== undefined) business.accountType = accountType;
+  if (toneMode !== undefined) business.toneMode = toneMode;
+  if (customInstructions !== undefined) business.customInstructions = customInstructions;
+  if (aiEnabled !== undefined) business.aiEnabled = aiEnabled;
+};
+
 // PUT /api/business - Update business profile
 router.put('/', authMiddleware, async (req, res) => {
   try {
-    const { businessName, description, products, faq, policies, tone, aiEnabled } = req.body;
-
     let business = await Business.findOne({ user: req.user.id });
     if (!business) {
       business = new Business({ user: req.user.id });
     }
 
-    if (businessName !== undefined) business.businessName = businessName;
-    if (description !== undefined) business.description = description;
-    if (products !== undefined) business.products = products;
-    if (faq !== undefined) business.faq = faq;
-    if (policies !== undefined) business.policies = policies;
-    if (tone !== undefined) business.tone = tone;
-    if (aiEnabled !== undefined) business.aiEnabled = aiEnabled;
+    updateBusinessFields(business, req.body);
 
     await business.save();
     res.json({ message: 'Business profile updated successfully', business });
   } catch (error) {
     console.error('Update business error:', error);
+    res.status(500).json({ message: 'Error updating business profile', error: error.message });
+  }
+});
+
+// POST /api/business/profile - Alternative update route
+router.post('/profile', authMiddleware, async (req, res) => {
+  try {
+    let business = await Business.findOne({ user: req.user.id });
+    if (!business) {
+      business = new Business({ user: req.user.id });
+    }
+
+    updateBusinessFields(business, req.body);
+
+    await business.save();
+    res.json({ message: 'Business profile updated successfully', business });
+  } catch (error) {
+    console.error('Update business profile error:', error);
     res.status(500).json({ message: 'Error updating business profile', error: error.message });
   }
 });

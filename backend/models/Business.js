@@ -45,6 +45,20 @@ const businessSchema = new mongoose.Schema(
       type: String,
       default: 'friendly and professional',
     },
+    accountType: {
+      type: String,
+      enum: ['business', 'influencer', 'freelancer', 'personal'],
+      default: 'business',
+    },
+    toneMode: {
+      type: String,
+      enum: ['auto', 'friendly', 'professional', 'casual_fun'],
+      default: 'auto',
+    },
+    customInstructions: {
+      type: String,
+      default: '',
+    },
     aiEnabled: {
       type: Boolean,
       default: true,
