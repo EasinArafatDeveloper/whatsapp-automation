@@ -16,6 +16,8 @@ import {
   Users,
 } from 'lucide-react';
 
+import { DashboardOverviewSkeleton } from '@/components/SkeletonLoader';
+
 interface BusinessSummary {
   businessName: string;
   aiEnabled: boolean;
@@ -29,6 +31,7 @@ interface ConnectionStatus {
 }
 
 export default function DashboardOverviewPage() {
+  const [loading, setLoading] = useState<boolean>(true);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [connStatus, setConnStatus] = useState<ConnectionStatus>({ status: 'disconnected' });
   const [leadsCount, setLeadsCount] = useState<number>(0);
@@ -66,11 +69,17 @@ export default function DashboardOverviewPage() {
         }
       } catch (err) {
         console.error('Failed to load overview metrics:', err);
+      } finally {
+        setLoading(false);
       }
     };
 
     loadData();
   }, []);
+
+  if (loading) {
+    return <DashboardOverviewSkeleton />;
+  }
 
   return (
     <div className="space-y-8">

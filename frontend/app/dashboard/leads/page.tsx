@@ -8,6 +8,8 @@ import {
   Flame, TrendingUp, Star, MessageCircle,
 } from 'lucide-react';
 
+import { CardSkeleton } from '@/components/SkeletonLoader';
+
 interface Lead {
   _id: string;
   customerNumber: string;
@@ -208,9 +210,8 @@ export default function LeadsDashboardPage() {
 
       {/* Cards */}
       {loading ? (
-        <div className="bg-white p-12 rounded-3xl border border-slate-200 text-center text-slate-500 font-medium">
-          <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          Loading customer leads...
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <CardSkeleton count={6} />
         </div>
       ) : filteredLeads.length === 0 ? (
         <div className="bg-white p-16 rounded-3xl border border-slate-200 text-center space-y-3">

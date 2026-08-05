@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { fetchApi } from '@/lib/api';
 import { setAuthData, UserProfile } from '@/lib/auth';
 import { MessageSquare, ArrowRight, Lock, Mail, AlertCircle } from 'lucide-react';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 interface LoginResponse {
   token: string;
@@ -103,8 +104,17 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full py-3.5 px-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-all shadow-md shadow-blue-600/20 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {loading ? 'Logging in...' : 'Log In'}
-              <ArrowRight className="w-4 h-4" />
+              {loading ? (
+                <>
+                  <LoadingSpinner size="sm" variant="white" />
+                  <span>Logging in...</span>
+                </>
+              ) : (
+                <>
+                  <span>Log In</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
             </button>
           </form>
 

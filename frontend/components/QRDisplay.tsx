@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { fetchApi } from '@/lib/api';
 import { showToast, showConfirmAlert } from '@/lib/alert';
 import { QrCode, CheckCircle2, RefreshCw, Smartphone, Unplug, AlertCircle, Copy, KeyRound } from 'lucide-react';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 interface WhatsAppStatusResponse {
   status: 'disconnected' | 'connecting' | 'qr_ready' | 'pairing_ready' | 'connected';
@@ -266,13 +267,13 @@ export default function QRDisplay() {
                   >
                     {loading ? (
                       <>
-                        <RefreshCw className="w-4 h-4 animate-spin" />
-                        Generating Code...
+                        <LoadingSpinner size="sm" variant="white" />
+                        <span>Generating Code...</span>
                       </>
                     ) : (
                       <>
                         <KeyRound className="w-4 h-4" />
-                        Generate 8-Digit Mobile Code
+                        <span>Generate 8-Digit Mobile Code</span>
                       </>
                     )}
                   </button>

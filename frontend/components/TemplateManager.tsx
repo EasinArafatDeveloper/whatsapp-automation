@@ -5,6 +5,9 @@ import { fetchApi } from '@/lib/api';
 import { showToast, showConfirmAlert } from '@/lib/alert';
 import { Plus, Trash2, Tag, FileText, Search, AlertCircle, CheckCircle2 } from 'lucide-react';
 
+import { CardSkeleton } from '@/components/SkeletonLoader';
+import LoadingSpinner from '@/components/LoadingSpinner';
+
 interface TemplateItem {
   _id?: string;
   keyword: string;
@@ -166,8 +169,17 @@ export default function TemplateManager() {
               disabled={submitting}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-all shadow-md shadow-blue-600/20 active:scale-95 disabled:opacity-50"
             >
-              <Plus className="w-4 h-4" />
-              {submitting ? 'Saving Rule...' : 'Add Template Rule'}
+              {submitting ? (
+                <>
+                  <LoadingSpinner size="sm" variant="white" />
+                  <span>Saving Rule...</span>
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4" />
+                  <span>Add Template Rule</span>
+                </>
+              )}
             </button>
           </div>
         </form>
@@ -194,7 +206,9 @@ export default function TemplateManager() {
         </div>
 
         {loading ? (
-          <div className="text-center py-8 text-slate-500 text-sm font-medium">Loading templates...</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <CardSkeleton count={2} />
+          </div>
         ) : filteredTemplates.length === 0 ? (
           <div className="text-center py-12 text-slate-500 text-sm font-medium">
             No keyword fallback rules created yet. Add your first rule above.

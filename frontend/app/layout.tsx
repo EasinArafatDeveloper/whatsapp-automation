@@ -72,6 +72,9 @@ export const metadata: Metadata = {
   },
 };
 
+import { Suspense } from 'react';
+import PageProgressBar from '@/components/PageProgressBar';
+
 export default function RootLayout({
   children,
 }: {
@@ -102,6 +105,9 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased selection:bg-blue-600 selection:text-white bg-slate-50 text-slate-900">
+        <Suspense fallback={null}>
+          <PageProgressBar />
+        </Suspense>
         <Toaster position="top-right" />
         {children}
         <LiveSupportWidget />

@@ -21,6 +21,9 @@ import {
   MessageSquare,
 } from 'lucide-react';
 
+import { FormSkeleton } from '@/components/SkeletonLoader';
+import LoadingSpinner from '@/components/LoadingSpinner';
+
 interface BusinessData {
   businessName: string;
   description: string;
@@ -180,12 +183,7 @@ export default function BusinessForm() {
   };
 
   if (loading) {
-    return (
-      <div className="bg-white p-8 rounded-2xl text-center space-y-3 border border-slate-200 shadow-sm">
-        <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
-        <p className="text-sm text-slate-500 font-medium">Loading AI Assistant profile...</p>
-      </div>
-    );
+    return <FormSkeleton />;
   }
 
   return (
@@ -547,8 +545,17 @@ A: bKash, Bank Transfer, Payoneer.`}
             disabled={saving}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-9 py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm transition-all shadow-md shadow-blue-600/20 active:scale-95 disabled:opacity-50"
           >
-            <Save className="w-5 h-5" />
-            {saving ? 'Saving AI Memory...' : 'Save Knowledge Base'}
+            {saving ? (
+              <>
+                <LoadingSpinner size="sm" variant="white" />
+                <span>Saving AI Memory...</span>
+              </>
+            ) : (
+              <>
+                <Save className="w-5 h-5" />
+                <span>Save Knowledge Base</span>
+              </>
+            )}
           </button>
         </div>
 
