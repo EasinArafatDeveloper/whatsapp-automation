@@ -8,30 +8,7 @@ import {
   ChevronRight, AlertCircle, CheckCircle2, UserCheck, UserX,
   Star, Activity, Clock,
 } from 'lucide-react';
-
-const SUPER_TOKEN_KEY = 'wp_super_admin_token';
-const RAILWAY_BACKEND = 'https://whatsapp-automation-production-9851.up.railway.app';
-
-const getApiBase = () => {
-  if (typeof window === 'undefined') return RAILWAY_BACKEND;
-  if (window.location.hostname === 'localhost') return 'http://localhost:5000';
-  return RAILWAY_BACKEND;
-};
-
-const superFetch = async (endpoint: string, options: RequestInit = {}) => {
-  const token = localStorage.getItem(SUPER_TOKEN_KEY);
-  const res = await fetch(`${getApiBase()}${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `SuperAdmin ${token}`,
-      ...(options.headers || {}),
-    },
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.message || 'Request failed');
-  return data;
-};
+import { getSuperAdminToken, clearSuperAdminToken, superFetch } from '@/lib/superAdmin';
 
 interface Stats {
   totalUsers: number;
@@ -121,7 +98,7 @@ export default function SuperAdminDashboard() {
   }, [search, loadUsers]);
 
   const handleLogout = () => {
-    localStorage.removeItem(SUPER_TOKEN_KEY);
+    clearSuperAdminToken();
     router.push('/admin/login');
   };
 

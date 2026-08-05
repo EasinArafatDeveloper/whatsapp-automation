@@ -3,19 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Shield } from 'lucide-react';
-
-const SUPER_TOKEN_KEY = 'wp_super_admin_token';
-
-export const getSuperAdminToken = (): string | null => {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem(SUPER_TOKEN_KEY);
-};
-
-export const clearSuperAdminToken = () => {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem(SUPER_TOKEN_KEY);
-  }
-};
+import { getSuperAdminToken } from '@/lib/superAdmin';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();

@@ -3,15 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Shield, Eye, EyeOff, Lock, Mail, AlertCircle } from 'lucide-react';
-
-const SUPER_TOKEN_KEY = 'wp_super_admin_token';
-const RAILWAY_BACKEND = 'https://whatsapp-automation-production-9851.up.railway.app';
-
-const getApiBase = () => {
-  if (typeof window === 'undefined') return RAILWAY_BACKEND;
-  if (window.location.hostname === 'localhost') return 'http://localhost:5000';
-  return RAILWAY_BACKEND;
-};
+import { setSuperAdminToken, getSuperApiBase } from '@/lib/superAdmin';
 
 export default function SuperAdminLoginPage() {
   const router = useRouter();
@@ -27,7 +19,7 @@ export default function SuperAdminLoginPage() {
     setError(null);
 
     try {
-      const res = await fetch(`${getApiBase()}/api/super-admin/login`, {
+      const res = await fetch(`${getSuperApiBase()}/api/super-admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim(), password }),
@@ -39,7 +31,7 @@ export default function SuperAdminLoginPage() {
         throw new Error(data.message || 'Invalid credentials');
       }
 
-      localStorage.setItem(SUPER_TOKEN_KEY, data.token);
+      setSuperAdminToken(data.token);
       router.push('/admin');
     } catch (err: any) {
       setError(err.message || 'Login failed. Please try again.');
