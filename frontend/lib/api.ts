@@ -1,8 +1,14 @@
 import { getToken, clearAuth } from './auth';
 
 const getApiBaseUrl = (): string => {
-  const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-  return url.replace(/\/+$/, ''); // Remove trailing slash if present
+  const envUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (envUrl && !envUrl.includes('localhost')) {
+    return envUrl.replace(/\/+$/, '');
+  }
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    return 'https://whatsapp-automation-production-9851.up.railway.app';
+  }
+  return (envUrl || 'http://localhost:5000').replace(/\/+$/, '');
 };
 
 interface RequestOptions extends RequestInit {
