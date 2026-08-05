@@ -29,14 +29,32 @@ export async function fetchApi<T>(endpoint: string, options: RequestOptions = {}
     headers,
   });
 
-  const data = await response.json();
+  let data: any;
+  const contentType = response.headers.get('content-type') || '';
+
+  if (contentType.includes('application/json')) {
+    try {
+      data = await response.json();
+    } catch (e) {
+      data = { message: 'Invalid JSON response from server' };
+    }
+  } else {
+    const rawText = await response.text();
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error(`API endpoint not found (404). Please verify backend server is deployed.`);
+      }
+      throw new Error(`Server error (${response.status}): ${rawText.slice(0, 120)}`);
+    }
+    data = { message: rawText };
+  }
 
   if (!response.ok) {
     if (response.status === 401 && typeof window !== 'undefined' && !endpoint.includes('/auth/login')) {
       clearAuth();
       window.location.href = '/login';
     }
-    throw new Error(data.message || 'An error occurred during request');
+    throw new Error(data?.message || `Request failed with status ${response.status}`);
   }
 
   return data as T;

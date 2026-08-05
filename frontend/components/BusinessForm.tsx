@@ -116,14 +116,22 @@ export default function BusinessForm() {
     setMsg(null);
 
     try {
-      await fetchApi('/api/business/profile', {
-        method: 'POST',
+      await fetchApi('/api/business', {
+        method: 'PUT',
         body: JSON.stringify(formData),
       });
 
       setMsg({ type: 'success', text: 'AI Assistant memory & tone settings updated successfully!' });
     } catch (err: any) {
-      setMsg({ type: 'error', text: err.message || 'Failed to save settings' });
+      try {
+        await fetchApi('/api/business/profile', {
+          method: 'POST',
+          body: JSON.stringify(formData),
+        });
+        setMsg({ type: 'success', text: 'AI Assistant memory & tone settings updated successfully!' });
+      } catch (fallbackErr: any) {
+        setMsg({ type: 'error', text: err.message || 'Failed to save settings' });
+      }
     } finally {
       setSaving(false);
     }
