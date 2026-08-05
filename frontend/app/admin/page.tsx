@@ -65,7 +65,7 @@ export default function SuperAdminDashboard() {
       setStats(data.stats);
     } catch (err: any) {
       if (err.message?.includes('401') || err.message?.includes('403')) {
-        localStorage.removeItem(SUPER_TOKEN_KEY);
+        clearSuperAdminToken();
         router.push('/admin/login');
       }
     }
