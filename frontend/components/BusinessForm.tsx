@@ -115,19 +115,29 @@ export default function BusinessForm() {
     setSaving(true);
     setMsg(null);
 
+    const dataToSave = { ...formData };
+
     try {
       const res = await fetchApi<{ business: BusinessData }>('/api/business', {
         method: 'PUT',
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToSave),
       });
 
       if (res && res.business) {
-        setFormData((prev) => ({
-          ...prev,
-          accountType: res.business.accountType || prev.accountType,
-          toneMode: res.business.toneMode || prev.toneMode,
-          customInstructions: res.business.customInstructions ?? prev.customInstructions,
-        }));
+        setFormData({
+          businessName: res.business.businessName ?? dataToSave.businessName,
+          description: res.business.description ?? dataToSave.description,
+          products: res.business.products ?? dataToSave.products,
+          faq: res.business.faq ?? dataToSave.faq,
+          policies: res.business.policies ?? dataToSave.policies,
+          tone: res.business.tone ?? dataToSave.tone,
+          accountType: res.business.accountType || dataToSave.accountType,
+          toneMode: res.business.toneMode || dataToSave.toneMode,
+          customInstructions: res.business.customInstructions ?? dataToSave.customInstructions,
+          aiEnabled: res.business.aiEnabled ?? dataToSave.aiEnabled,
+        });
+      } else {
+        setFormData(dataToSave);
       }
 
       setMsg({ type: 'success', text: 'AI Assistant memory & persona settings updated successfully!' });
@@ -135,15 +145,23 @@ export default function BusinessForm() {
       try {
         const res = await fetchApi<{ business: BusinessData }>('/api/business/profile', {
           method: 'POST',
-          body: JSON.stringify(formData),
+          body: JSON.stringify(dataToSave),
         });
         if (res && res.business) {
-          setFormData((prev) => ({
-            ...prev,
-            accountType: res.business.accountType || prev.accountType,
-            toneMode: res.business.toneMode || prev.toneMode,
-            customInstructions: res.business.customInstructions ?? prev.customInstructions,
-          }));
+          setFormData({
+            businessName: res.business.businessName ?? dataToSave.businessName,
+            description: res.business.description ?? dataToSave.description,
+            products: res.business.products ?? dataToSave.products,
+            faq: res.business.faq ?? dataToSave.faq,
+            policies: res.business.policies ?? dataToSave.policies,
+            tone: res.business.tone ?? dataToSave.tone,
+            accountType: res.business.accountType || dataToSave.accountType,
+            toneMode: res.business.toneMode || dataToSave.toneMode,
+            customInstructions: res.business.customInstructions ?? dataToSave.customInstructions,
+            aiEnabled: res.business.aiEnabled ?? dataToSave.aiEnabled,
+          });
+        } else {
+          setFormData(dataToSave);
         }
         setMsg({ type: 'success', text: 'AI Assistant memory & persona settings updated successfully!' });
       } catch (fallbackErr: any) {

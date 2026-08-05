@@ -32,17 +32,29 @@ const updateBusinessFields = (business, data) => {
   if (aiEnabled !== undefined) business.aiEnabled = aiEnabled;
 };
 
-// PUT /api/business - Update business profile
+// PUT /api/business - Update business profile atomically
 router.put('/', authMiddleware, async (req, res) => {
   try {
-    let business = await Business.findOne({ user: req.user.id });
-    if (!business) {
-      business = new Business({ user: req.user.id });
-    }
+    const { businessName, description, products, faq, policies, tone, accountType, toneMode, customInstructions, aiEnabled } = req.body;
+    
+    const updateData = {};
+    if (businessName !== undefined) updateData.businessName = businessName;
+    if (description !== undefined) updateData.description = description;
+    if (products !== undefined) updateData.products = products;
+    if (faq !== undefined) updateData.faq = faq;
+    if (policies !== undefined) updateData.policies = policies;
+    if (tone !== undefined) updateData.tone = tone;
+    if (accountType !== undefined) updateData.accountType = accountType;
+    if (toneMode !== undefined) updateData.toneMode = toneMode;
+    if (customInstructions !== undefined) updateData.customInstructions = customInstructions;
+    if (aiEnabled !== undefined) updateData.aiEnabled = aiEnabled;
 
-    updateBusinessFields(business, req.body);
+    const business = await Business.findOneAndUpdate(
+      { user: req.user.id },
+      { $set: updateData },
+      { new: true, upsert: true, setDefaultsOnInsert: true }
+    );
 
-    await business.save();
     res.json({ message: 'Business profile updated successfully', business });
   } catch (error) {
     console.error('Update business error:', error);
@@ -53,14 +65,26 @@ router.put('/', authMiddleware, async (req, res) => {
 // POST /api/business/profile - Alternative update route
 router.post('/profile', authMiddleware, async (req, res) => {
   try {
-    let business = await Business.findOne({ user: req.user.id });
-    if (!business) {
-      business = new Business({ user: req.user.id });
-    }
+    const { businessName, description, products, faq, policies, tone, accountType, toneMode, customInstructions, aiEnabled } = req.body;
+    
+    const updateData = {};
+    if (businessName !== undefined) updateData.businessName = businessName;
+    if (description !== undefined) updateData.description = description;
+    if (products !== undefined) updateData.products = products;
+    if (faq !== undefined) updateData.faq = faq;
+    if (policies !== undefined) updateData.policies = policies;
+    if (tone !== undefined) updateData.tone = tone;
+    if (accountType !== undefined) updateData.accountType = accountType;
+    if (toneMode !== undefined) updateData.toneMode = toneMode;
+    if (customInstructions !== undefined) updateData.customInstructions = customInstructions;
+    if (aiEnabled !== undefined) updateData.aiEnabled = aiEnabled;
 
-    updateBusinessFields(business, req.body);
+    const business = await Business.findOneAndUpdate(
+      { user: req.user.id },
+      { $set: updateData },
+      { new: true, upsert: true, setDefaultsOnInsert: true }
+    );
 
-    await business.save();
     res.json({ message: 'Business profile updated successfully', business });
   } catch (error) {
     console.error('Update business profile error:', error);
