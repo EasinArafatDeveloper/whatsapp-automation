@@ -30,10 +30,15 @@ router.post('/signup', async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Check if this is the first user or support email to make admin
+    const userCount = await User.countDocuments();
+    const isAdmin = userCount === 0 || email.toLowerCase() === 'contact.scaleupweb@gmail.com';
+
     const user = await User.create({
       name,
       email: email.toLowerCase(),
       password: hashedPassword,
+      role: isAdmin ? 'admin' : 'user',
     });
 
     // Create empty Business profile for user
@@ -50,6 +55,8 @@ router.post('/signup', async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
+        isActive: user.isActive,
         whatsappConnected: user.whatsappConnected,
         whatsappNumber: user.whatsappNumber,
       },
@@ -74,9 +81,19 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
+    if (user.isActive === false) {
+      return res.status(403).json({ message: 'Your account has been disabled by Super Admin. Please contact support.' });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    // Auto promote support email to admin if needed
+    if (user.email === 'contact.scaleupweb@gmail.com' && user.role !== 'admin') {
+      user.role = 'admin';
+      await user.save();
     }
 
     const token = generateToken(user._id);
@@ -87,6 +104,8 @@ router.post('/login', async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role || 'user',
+        isActive: user.isActive ?? true,
         whatsappConnected: user.whatsappConnected,
         whatsappNumber: user.whatsappNumber,
       },

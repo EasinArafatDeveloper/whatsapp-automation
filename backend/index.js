@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const businessRoutes = require('./routes/business');
 const whatsappRoutes = require('./routes/whatsapp');
 const leadRoutes = require('./routes/lead');
+const adminRoutes = require('./routes/admin');
 const { restoreSessionsOnStartup } = require('./services/whatsappManager');
 
 const app = express();
@@ -25,6 +26,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/business', businessRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
 app.use('/api/leads', leadRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Root & Health check endpoints
 app.get('/', (req, res) => {

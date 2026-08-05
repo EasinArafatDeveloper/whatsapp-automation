@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { fetchApi } from '@/lib/api';
+import { showToast, showConfirmAlert, showSuccessModal } from '@/lib/alert';
 import {
   Save,
   Building2,
@@ -89,25 +90,28 @@ export default function BusinessForm() {
     setFormData((prev) => ({ ...prev, aiEnabled: !prev.aiEnabled }));
   };
 
-  const handleClearAll = () => {
-    if (window.confirm('Are you sure you want to clear all knowledge base fields?')) {
-      setFormData({
-        businessName: '',
-        description: '',
-        products: '',
-        faq: '',
-        policies: '',
-        tone: '',
-        accountType: 'business',
-        toneMode: 'auto',
-        customInstructions: '',
-        aiEnabled: formData.aiEnabled,
-      });
-      setMsg({
-        type: 'success',
-        text: 'All fields cleared! Click "Save Knowledge Base" to confirm changes.',
-      });
-    }
+  const handleClearAll = async () => {
+    const confirmed = await showConfirmAlert(
+      'Clear Knowledge Base?',
+      'Are you sure you want to clear all form fields? Click Save afterwards to confirm changes.',
+      'Yes, clear fields'
+    );
+
+    if (!confirmed) return;
+
+    setFormData({
+      businessName: '',
+      description: '',
+      products: '',
+      faq: '',
+      policies: '',
+      tone: '',
+      accountType: 'business',
+      toneMode: 'auto',
+      customInstructions: '',
+      aiEnabled: formData.aiEnabled,
+    });
+    showToast.success('All fields cleared! Click "Save Knowledge Base" to apply.');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -140,6 +144,7 @@ export default function BusinessForm() {
         setFormData(dataToSave);
       }
 
+      showToast.success('AI Knowledge Base & Persona updated successfully!');
       setMsg({ type: 'success', text: 'AI Assistant memory & persona settings updated successfully!' });
     } catch (err: any) {
       try {
@@ -163,8 +168,10 @@ export default function BusinessForm() {
         } else {
           setFormData(dataToSave);
         }
+        showToast.success('AI Knowledge Base & Persona updated successfully!');
         setMsg({ type: 'success', text: 'AI Assistant memory & persona settings updated successfully!' });
       } catch (fallbackErr: any) {
+        showToast.error(err.message || 'Failed to save settings');
         setMsg({ type: 'error', text: err.message || 'Failed to save settings' });
       }
     } finally {

@@ -10,8 +10,11 @@ import {
   Users,
   LogOut,
   MessageSquare,
+  Crown,
+  ShieldCheck,
 } from 'lucide-react';
 import { clearAuth, getUser } from '@/lib/auth';
+import { showToast, showConfirmAlert } from '@/lib/alert';
 import { useEffect, useState } from 'react';
 
 interface SidebarProps {
@@ -23,18 +26,29 @@ export default function Sidebar({ onCloseMobile }: SidebarProps) {
   const router = useRouter();
   const [userName, setUserName] = useState<string>('Business Owner');
   const [userEmail, setUserEmail] = useState<string>('');
+  const [userRole, setUserRole] = useState<string>('user');
 
   useEffect(() => {
     const user = getUser();
     if (user) {
       setUserName(user.name);
       setUserEmail(user.email);
+      setUserRole(user.role || (user.email === 'contact.scaleupweb@gmail.com' ? 'admin' : 'user'));
     }
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const confirmed = await showConfirmAlert(
+      'Log Out Account?',
+      'Are you sure you want to log out of your dashboard session?',
+      'Yes, Log Out'
+    );
+
+    if (!confirmed) return;
+
     clearAuth();
     if (onCloseMobile) onCloseMobile();
+    showToast.success('Logged out successfully!');
     router.push('/login');
   };
 
@@ -66,8 +80,10 @@ export default function Sidebar({ onCloseMobile }: SidebarProps) {
     },
   ];
 
+  const isAdmin = userRole === 'admin' || userEmail === 'contact.scaleupweb@gmail.com';
+
   return (
-    <aside className="w-64 h-full min-h-screen bg-white border-r border-slate-200/90 flex flex-col justify-between p-4 shadow-sm">
+    <aside className="w-64 h-full min-h-screen bg-white border-r border-slate-200/90 flex flex-col justify-between p-4 shadow-sm font-sans">
       <div>
         {/* Brand Header */}
         <Link
@@ -109,6 +125,27 @@ export default function Sidebar({ onCloseMobile }: SidebarProps) {
               </Link>
             );
           })}
+
+          {/* Super Admin Portal Menu Item */}
+          {isAdmin && (
+            <div className="pt-3 mt-3 border-t border-slate-100">
+              <span className="px-3 text-[10px] font-extrabold uppercase tracking-wider text-purple-600 block mb-1.5">
+                Super Admin
+              </span>
+              <Link
+                href="/dashboard/admin"
+                onClick={onCloseMobile}
+                className={`flex items-center gap-3 px-3.5 py-3 rounded-xl font-extrabold text-sm transition-all ${
+                  pathname === '/dashboard/admin'
+                    ? 'bg-purple-600 text-white shadow-md shadow-purple-500/25'
+                    : 'text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200/80'
+                }`}
+              >
+                <Crown className={`w-5 h-5 ${pathname === '/dashboard/admin' ? 'text-amber-300' : 'text-purple-600'}`} />
+                Admin Portal
+              </Link>
+            </div>
+          )}
         </nav>
       </div>
 
@@ -119,7 +156,10 @@ export default function Sidebar({ onCloseMobile }: SidebarProps) {
             {userName.charAt(0).toUpperCase()}
           </div>
           <div className="overflow-hidden">
-            <p className="text-sm font-bold text-slate-900 truncate">{userName}</p>
+            <p className="text-sm font-bold text-slate-900 truncate flex items-center gap-1">
+              {userName}
+              {isAdmin && <Crown className="w-3.5 h-3.5 text-amber-500 shrink-0" />}
+            </p>
             <p className="text-xs text-slate-500 truncate">{userEmail}</p>
           </div>
         </div>

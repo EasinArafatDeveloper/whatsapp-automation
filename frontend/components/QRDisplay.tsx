@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { fetchApi } from '@/lib/api';
+import { showToast, showConfirmAlert } from '@/lib/alert';
 import { QrCode, CheckCircle2, RefreshCw, Smartphone, Unplug, AlertCircle, Copy, KeyRound } from 'lucide-react';
 
 interface WhatsAppStatusResponse {
@@ -50,18 +51,28 @@ export default function QRDisplay() {
         body: JSON.stringify(payload),
       });
       setStatusData(res);
+      showToast.success('Initializing WhatsApp socket session...');
       // Immediately poll status every second for 5 seconds to catch QR/pairing code fast
       for (let i = 1; i <= 5; i++) {
         setTimeout(checkStatus, i * 1000);
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to start WhatsApp session');
+      showToast.error(err.message || 'Failed to start WhatsApp session');
     } finally {
       setLoading(false);
     }
   };
 
   const handleLogout = async () => {
+    const confirmed = await showConfirmAlert(
+      'Disconnect WhatsApp?',
+      'Are you sure you want to disconnect this active WhatsApp session?',
+      'Yes, Disconnect'
+    );
+
+    if (!confirmed) return;
+
     setLoading(true);
     setErrorMsg('');
     try {
@@ -69,8 +80,10 @@ export default function QRDisplay() {
         method: 'POST',
       });
       setStatusData(res);
+      showToast.success('WhatsApp session disconnected.');
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to disconnect session');
+      showToast.error(err.message || 'Failed to disconnect session');
     } finally {
       setLoading(false);
     }
@@ -79,6 +92,7 @@ export default function QRDisplay() {
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code);
     setCopied(true);
+    showToast.success('Pairing Code copied to clipboard!');
     setTimeout(() => setCopied(false), 2000);
   };
 

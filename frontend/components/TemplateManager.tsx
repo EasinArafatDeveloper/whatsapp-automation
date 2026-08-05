@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { fetchApi } from '@/lib/api';
+import { showToast, showConfirmAlert } from '@/lib/alert';
 import { Plus, Trash2, Tag, FileText, Search, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 interface TemplateItem {
@@ -52,8 +53,10 @@ export default function TemplateManager() {
       setTemplates(res.templates);
       setKeyword('');
       setReply('');
+      showToast.success(`Template rule for "${keyword}" saved successfully!`);
       setMsg({ type: 'success', text: `Template for "${keyword}" saved successfully!` });
     } catch (err: any) {
+      showToast.error(err.message || 'Failed to save template');
       setMsg({ type: 'error', text: err.message || 'Failed to save template' });
     } finally {
       setSubmitting(false);
@@ -61,6 +64,14 @@ export default function TemplateManager() {
   };
 
   const handleDelete = async (targetKeyword: string) => {
+    const confirmed = await showConfirmAlert(
+      'Delete Keyword Rule?',
+      `Are you sure you want to delete the fallback template rule for "${targetKeyword}"?`,
+      'Yes, delete rule'
+    );
+
+    if (!confirmed) return;
+
     setMsg(null);
     try {
       const res = await fetchApi<{ templates: TemplateItem[] }>(
@@ -68,8 +79,10 @@ export default function TemplateManager() {
         { method: 'DELETE' }
       );
       setTemplates(res.templates);
+      showToast.success(`Template rule for "${targetKeyword}" deleted successfully`);
       setMsg({ type: 'success', text: `Template "${targetKeyword}" deleted successfully` });
     } catch (err: any) {
+      showToast.error(err.message || 'Failed to delete template');
       setMsg({ type: 'error', text: err.message || 'Failed to delete template' });
     }
   };
