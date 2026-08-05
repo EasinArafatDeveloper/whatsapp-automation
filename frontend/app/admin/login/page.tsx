@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Shield, Eye, EyeOff, Lock, Mail, AlertCircle } from 'lucide-react';
-import { setSuperAdminToken, getSuperApiBase } from '@/lib/superAdmin';
+import { setSuperAdminToken, getSuperApiBase, superFetch } from '@/lib/superAdmin';
 
 export default function SuperAdminLoginPage() {
   const router = useRouter();
@@ -19,20 +19,17 @@ export default function SuperAdminLoginPage() {
     setError(null);
 
     try {
-      const res = await fetch(`${getSuperApiBase()}/api/super-admin/login`, {
+      const data = await superFetch<{ token: string; message: string }>('/api/super-admin/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim(), password }),
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || 'Invalid credentials');
+      if (data.token) {
+        setSuperAdminToken(data.token);
+        router.push('/admin');
+      } else {
+        throw new Error('Login failed: Token not received');
       }
-
-      setSuperAdminToken(data.token);
-      router.push('/admin');
     } catch (err: any) {
       setError(err.message || 'Login failed. Please try again.');
     } finally {
