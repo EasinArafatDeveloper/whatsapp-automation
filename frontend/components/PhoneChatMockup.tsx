@@ -99,7 +99,7 @@ export default function PhoneChatMockup() {
     <div className="relative mx-auto [perspective:1400px] select-none font-sans py-4">
       
       {/* 3D Tilted iPhone Wrapper with Interactive Smooth Hover */}
-      <div className="relative w-[310px] sm:w-[350px] h-[580px] sm:h-[630px] transition-all duration-700 ease-out [transform-style:preserve-3d] [transform:rotateY(-14deg)_rotateX(6deg)_rotateZ(2deg)] hover:[transform:rotateY(-4deg)_rotateX(2deg)_rotateZ(0deg)]">
+      <div className="relative w-[290px] sm:w-[350px] max-w-[calc(100vw-2.5rem)] h-[560px] sm:h-[630px] transition-all duration-700 ease-out [transform-style:preserve-3d] [transform:rotateY(-14deg)_rotateX(6deg)_rotateZ(2deg)] hover:[transform:rotateY(-4deg)_rotateX(2deg)_rotateZ(0deg)]">
         
         {/* 3D Soft Ambient Backlight Glow */}
         <div className="absolute -inset-6 bg-gradient-to-tr from-blue-600/35 via-indigo-500/30 to-cyan-400/35 rounded-[64px] blur-3xl opacity-85 animate-pulse pointer-events-none" />

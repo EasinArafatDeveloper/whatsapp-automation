@@ -142,7 +142,7 @@ export default function LiveSupportWidget() {
 
       {/* Live AI Chat Drawer Box */}
       {isOpen && (
-        <div className="w-[350px] sm:w-[390px] h-[530px] bg-white text-slate-900 rounded-[28px] border border-slate-200/90 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.22)] flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-300">
+        <div className="w-[calc(100vw-2rem)] sm:w-[390px] max-w-[390px] h-[530px] bg-white text-slate-900 rounded-[28px] border border-slate-200/90 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.22)] flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-300">
           
           {/* Vibrant Gradient Header */}
           <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 p-4 text-white flex items-center justify-between shadow-md">
