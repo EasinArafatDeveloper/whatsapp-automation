@@ -8,9 +8,15 @@ const authMiddleware = (req, res, next) => {
   }
 
   const token = authHeader.split(' ')[1];
+  const secret = process.env.JWT_SECRET;
+
+  if (!secret) {
+    console.error('CRITICAL: JWT_SECRET environment variable is not set!');
+    return res.status(500).json({ message: 'Server configuration error' });
+  }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
+    const decoded = jwt.verify(token, secret);
     req.user = decoded;
     next();
   } catch (error) {

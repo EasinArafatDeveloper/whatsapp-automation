@@ -13,13 +13,32 @@ const Business = require('../models/Business');
 const { generateResponse } = require('./aiService');
 const { updateCustomerLead } = require('./leadService');
 
-// Map to hold active sessions: userId -> { sock, status, qr, pairingCode, number }
+// Map to hold active sessions: userId -> { sock, status, qr, pairingCode, number, businessCache, businessCacheTime }
 const activeSessions = new Map();
+
+// Reconnect attempt counters: userId -> attempt count
+const reconnectAttempts = new Map();
 
 const SESSIONS_DIR = path.join(__dirname, '../sessions');
 if (!fs.existsSync(SESSIONS_DIR)) {
   fs.mkdirSync(SESSIONS_DIR, { recursive: true });
 }
+
+const BUSINESS_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Get business profile with in-memory cache (avoids DB hit per message)
+ */
+const getBusinessCached = async (userId, session) => {
+  const now = Date.now();
+  if (session.businessCache && session.businessCacheTime && (now - session.businessCacheTime < BUSINESS_CACHE_TTL)) {
+    return session.businessCache;
+  }
+  const business = await Business.findOne({ user: userId }).lean();
+  session.businessCache = business;
+  session.businessCacheTime = now;
+  return business;
+};
 
 /**
  * Initialize or retrieve WhatsApp Baileys Session for a User
@@ -60,6 +79,7 @@ const connectSession = async (userId, phoneNumber = null) => {
       } catch (e) {}
     }
     activeSessions.delete(strUserId);
+    reconnectAttempts.delete(strUserId); // Reset reconnect counter on fresh connect
 
     if (fs.existsSync(userSessionPath)) {
       try {
@@ -75,6 +95,8 @@ const connectSession = async (userId, phoneNumber = null) => {
     pairingCode: null,
     number: null,
     sock: null,
+    businessCache: null,
+    businessCacheTime: null,
   };
   if (sessionData.status !== 'pairing_ready' && sessionData.status !== 'qr_ready') {
     sessionData.status = 'connecting';
@@ -107,7 +129,6 @@ const connectSession = async (userId, phoneNumber = null) => {
           const qrBase64 = await QRCode.toDataURL(qr);
           if (session) {
             session.qr = qrBase64;
-            // Only set status to qr_ready if not currently pairing via phone code
             if (session.status !== 'pairing_ready') {
               session.status = 'qr_ready';
             }
@@ -127,6 +148,8 @@ const connectSession = async (userId, phoneNumber = null) => {
           session.qr = null;
           session.pairingCode = null;
           session.number = whatsappNum;
+          // Reset reconnect counter on successful connection
+          reconnectAttempts.delete(strUserId);
         }
 
         await User.findByIdAndUpdate(userId, {
@@ -148,10 +171,24 @@ const connectSession = async (userId, phoneNumber = null) => {
           await User.findByIdAndUpdate(userId, { whatsappConnected: false });
           logoutSession(userId);
         } else {
-          // If disconnected due to restartRequired (515) or temporary network glitch, reconnect automatically
-          setTimeout(() => {
-            connectSession(userId);
-          }, 3000);
+          // Exponential backoff reconnect (max 5 attempts)
+          const attempts = (reconnectAttempts.get(strUserId) || 0) + 1;
+
+          if (attempts <= 5) {
+            reconnectAttempts.set(strUserId, attempts);
+            const delayMs = 3000 * attempts; // 3s, 6s, 9s, 12s, 15s
+            console.log(`[Reconnect] User ${userId} — attempt ${attempts}/5, retrying in ${delayMs / 1000}s...`);
+            setTimeout(() => {
+              connectSession(userId);
+            }, delayMs);
+          } else {
+            console.log(`[Reconnect] Max attempts (5) reached for User ${userId}. Stopping auto-reconnect.`);
+            reconnectAttempts.delete(strUserId);
+            if (session) {
+              session.status = 'disconnected';
+            }
+            await User.findByIdAndUpdate(userId, { whatsappConnected: false });
+          }
         }
       }
     });
@@ -199,16 +236,19 @@ const connectSession = async (userId, phoneNumber = null) => {
           if (!textMessage.trim()) continue;
 
           const senderJid = msg.key.remoteJid;
-          console.log(`[User ${userId}] Incoming WhatsApp Msg from ${senderJid}: "${textMessage}"`);
+          console.log(`[User ${userId}] Incoming WA msg from ${senderJid}: "${textMessage}"`);
 
-          const business = await Business.findOne({ user: userId });
+          // Use cached business profile (no DB hit per message)
+          const currentSession = activeSessions.get(strUserId);
+          const business = await getBusinessCached(userId, currentSession || {});
+
           const pushName = msg.pushName || '';
 
           const replyText = await generateResponse(userId, senderJid, textMessage, business, pushName);
 
           if (replyText) {
             await sock.sendMessage(senderJid, { text: replyText });
-            console.log(`[User ${userId}] Auto-Replied to ${senderJid}: "${replyText}"`);
+            console.log(`[User ${userId}] Auto-replied to ${senderJid}: "${replyText}"`);
 
             updateCustomerLead(userId, senderJid, pushName, textMessage, replyText);
           }
@@ -233,6 +273,8 @@ const connectSession = async (userId, phoneNumber = null) => {
       pairingCode: null,
       number: null,
       sock: null,
+      businessCache: null,
+      businessCacheTime: null,
     });
     return { status: 'disconnected', qr: null, pairingCode: null, number: null };
   }
@@ -290,6 +332,7 @@ const logoutSession = async (userId) => {
   }
 
   activeSessions.delete(strUserId);
+  reconnectAttempts.delete(strUserId);
 
   const userSessionPath = path.join(SESSIONS_DIR, `session_${userId}`);
   if (fs.existsSync(userSessionPath)) {
@@ -312,6 +355,3 @@ module.exports = {
   logoutSession,
   restoreSessionsOnStartup,
 };
-
-
-

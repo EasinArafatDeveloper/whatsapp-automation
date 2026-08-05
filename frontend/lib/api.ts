@@ -1,14 +1,26 @@
 import { getToken, clearAuth } from './auth';
 
+const RAILWAY_BACKEND = 'https://whatsapp-automation-production-9851.up.railway.app';
+
 const getApiBaseUrl = (): string => {
+  // On server-side (SSR), always use env var
+  if (typeof window === 'undefined') {
+    return (process.env.NEXT_PUBLIC_API_URL || RAILWAY_BACKEND).replace(/\/+$/, '');
+  }
+
+  // On client-side: if env var is set and not localhost, use it directly
   const envUrl = process.env.NEXT_PUBLIC_API_URL;
   if (envUrl && !envUrl.includes('localhost')) {
     return envUrl.replace(/\/+$/, '');
   }
-  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
-    return 'https://whatsapp-automation-production-9851.up.railway.app';
+
+  // Running locally: use localhost:5000
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return envUrl?.replace(/\/+$/, '') || 'http://localhost:5000';
   }
-  return (envUrl || 'http://localhost:5000').replace(/\/+$/, '');
+
+  // Live deployment: use Railway backend directly
+  return RAILWAY_BACKEND;
 };
 
 interface RequestOptions extends RequestInit {
@@ -18,7 +30,7 @@ interface RequestOptions extends RequestInit {
 export async function fetchApi<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const token = getToken();
   const baseUrl = getApiBaseUrl();
-  
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers || {}),
@@ -29,8 +41,9 @@ export async function fetchApi<T>(endpoint: string, options: RequestOptions = {}
   }
 
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = `${baseUrl}${cleanEndpoint}`;
 
-  const response = await fetch(`${baseUrl}${cleanEndpoint}`, {
+  const response = await fetch(url, {
     ...options,
     headers,
   });

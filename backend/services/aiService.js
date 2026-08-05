@@ -2,11 +2,30 @@ const axios = require('axios');
 
 // In-memory conversation history store per customer: { [userId_senderJid]: [{ role, content }] }
 const conversationHistory = new Map();
+const historyTimestamp = new Map(); // Track last access time per key
+
+// TTL Cleanup: Remove inactive conversations older than 24 hours (runs every hour)
+setInterval(() => {
+  const now = Date.now();
+  const TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+  let cleaned = 0;
+  for (const [key, ts] of historyTimestamp.entries()) {
+    if (now - ts > TTL_MS) {
+      conversationHistory.delete(key);
+      historyTimestamp.delete(key);
+      cleaned++;
+    }
+  }
+  if (cleaned > 0) {
+    console.log(`[AI Memory] Cleaned ${cleaned} inactive conversation(s).`);
+  }
+}, 60 * 60 * 1000); // every 1 hour
 
 /**
  * Clean and format conversation history
  */
 const getHistory = (key) => {
+  historyTimestamp.set(key, Date.now()); // update access time
   if (!conversationHistory.has(key)) {
     return [];
   }
@@ -14,6 +33,7 @@ const getHistory = (key) => {
 };
 
 const updateHistory = (key, role, content) => {
+  historyTimestamp.set(key, Date.now()); // update access time
   const history = getHistory(key);
   history.push({ role, content });
   // Keep last 10 messages for context

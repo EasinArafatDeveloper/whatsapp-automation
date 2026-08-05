@@ -19,6 +19,15 @@ const leadSchema = new mongoose.Schema(
       type: String,
       default: 'Customer Inquiry',
     },
+    intentLabel: {
+      type: String,
+      default: '💬 General Inquiry',
+    },
+    priority: {
+      type: String,
+      enum: ['New', 'Warm Lead', 'Hot Lead', 'Urgent'],
+      default: 'New',
+    },
     location: {
       type: String,
       default: 'Not specified',
@@ -36,8 +45,17 @@ const leadSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    messageCount: {
+      type: Number,
+      default: 1,
+    },
   },
   { timestamps: true }
 );
+
+// Compound index: unique lead per user+customerNumber, plus fast sort by user+updatedAt
+leadSchema.index({ user: 1, customerNumber: 1 }, { unique: true });
+leadSchema.index({ user: 1, updatedAt: -1 });
+leadSchema.index({ user: 1, priority: 1 });
 
 module.exports = mongoose.model('Lead', leadSchema);

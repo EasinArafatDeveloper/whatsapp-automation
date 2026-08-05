@@ -12,10 +12,12 @@ router.use(authMiddleware, adminMiddleware);
 // GET /api/admin/stats - Overview Analytics
 router.get('/stats', async (req, res) => {
   try {
-    const totalUsers = await User.countDocuments();
-    const activeWhatsappSessions = await User.countDocuments({ whatsappConnected: true });
-    const totalLeads = await Lead.countDocuments();
-    const totalBusinesses = await Business.countDocuments();
+    const [totalUsers, activeWhatsappSessions, totalLeads, totalBusinesses] = await Promise.all([
+      User.countDocuments(),
+      User.countDocuments({ whatsappConnected: true }),
+      Lead.countDocuments(),
+      Business.countDocuments(),
+    ]);
 
     res.json({
       stats: {
@@ -32,32 +34,59 @@ router.get('/stats', async (req, res) => {
 });
 
 // GET /api/admin/users - List all registered SaaS users with tenant details
+// Uses MongoDB aggregation to avoid N+1 queries (scalable for 1000+ users)
 router.get('/users', async (req, res) => {
   try {
-    const users = await User.find().select('-password').sort({ createdAt: -1 });
-    
-    // Fetch business profiles & lead counts for each user
-    const usersWithDetails = await Promise.all(
-      users.map(async (u) => {
-        const business = await Business.findOne({ user: u._id });
-        const leadCount = await Lead.countDocuments({ user: u._id });
-
-        return {
-          id: u._id,
-          name: u.name,
-          email: u.email,
-          role: u.role || 'user',
-          isActive: u.isActive ?? true,
-          whatsappConnected: u.whatsappConnected,
-          whatsappNumber: u.whatsappNumber,
-          createdAt: u.createdAt,
-          businessName: business?.businessName || `${u.name}'s Business`,
-          accountType: business?.accountType || 'business',
-          toneMode: business?.toneMode || 'auto',
-          leadCount,
-        };
-      })
-    );
+    const usersWithDetails = await User.aggregate([
+      { $sort: { createdAt: -1 } },
+      { $project: { password: 0 } }, // Never expose passwords
+      {
+        $lookup: {
+          from: 'businesses',
+          localField: '_id',
+          foreignField: 'user',
+          as: 'business',
+        },
+      },
+      {
+        $lookup: {
+          from: 'leads',
+          let: { userId: '$_id' },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$user', '$$userId'] } } },
+            { $count: 'total' },
+          ],
+          as: 'leadCountArr',
+        },
+      },
+      {
+        $addFields: {
+          businessData: { $arrayElemAt: ['$business', 0] },
+          leadCount: { $ifNull: [{ $arrayElemAt: ['$leadCountArr.total', 0] }, 0] },
+        },
+      },
+      {
+        $project: {
+          business: 0,
+          leadCountArr: 0,
+          businessData: 0,
+          'businessData.customInstructions': 0,
+          // Keep these
+          id: '$_id',
+          name: 1,
+          email: 1,
+          role: 1,
+          isActive: 1,
+          whatsappConnected: 1,
+          whatsappNumber: 1,
+          createdAt: 1,
+          leadCount: 1,
+          businessName: { $ifNull: ['$businessData.businessName', ''] },
+          accountType: { $ifNull: ['$businessData.accountType', 'business'] },
+          toneMode: { $ifNull: ['$businessData.toneMode', 'auto'] },
+        },
+      },
+    ]);
 
     res.json({ users: usersWithDetails });
   } catch (error) {
@@ -99,7 +128,7 @@ router.put('/users/:id', async (req, res) => {
   }
 });
 
-// DELETE /api/admin/users/:id - Delete tenant user and data
+// DELETE /api/admin/users/:id - Delete tenant user and all data
 router.delete('/users/:id', async (req, res) => {
   try {
     const userId = req.params.id;
@@ -114,10 +143,12 @@ router.delete('/users/:id', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Delete user, business profile, and leads
-    await User.findByIdAndDelete(userId);
-    await Business.deleteMany({ user: userId });
-    await Lead.deleteMany({ user: userId });
+    // Delete user + all associated tenant data atomically
+    await Promise.all([
+      User.findByIdAndDelete(userId),
+      Business.deleteMany({ user: userId }),
+      Lead.deleteMany({ user: userId }),
+    ]);
 
     res.json({ message: 'User and all associated tenant data deleted successfully' });
   } catch (error) {

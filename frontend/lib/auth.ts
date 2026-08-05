@@ -5,6 +5,8 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
+  role: 'user' | 'admin';
+  isActive: boolean;
   whatsappConnected: boolean;
   whatsappNumber: string | null;
 }
