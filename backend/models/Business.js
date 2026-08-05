@@ -25,6 +25,11 @@ const businessSchema = new mongoose.Schema(
       default: 'My Business',
       trim: true,
     },
+    agentName: {
+      type: String,
+      default: '',
+      trim: true,
+    },
     description: {
       type: String,
       default: '',

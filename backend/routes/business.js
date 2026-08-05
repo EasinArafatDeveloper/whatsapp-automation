@@ -35,9 +35,10 @@ const updateBusinessFields = (business, data) => {
 // PUT /api/business - Update business profile atomically
 router.put('/', authMiddleware, async (req, res) => {
   try {
-    const { businessName, description, products, faq, policies, tone, accountType, toneMode, customInstructions, aiEnabled } = req.body;
+    const { agentName, businessName, description, products, faq, policies, tone, accountType, toneMode, customInstructions, aiEnabled } = req.body;
     
     const updateData = {};
+    if (agentName !== undefined) updateData.agentName = agentName;
     if (businessName !== undefined) updateData.businessName = businessName;
     if (description !== undefined) updateData.description = description;
     if (products !== undefined) updateData.products = products;
@@ -65,9 +66,10 @@ router.put('/', authMiddleware, async (req, res) => {
 // POST /api/business/profile - Alternative update route
 router.post('/profile', authMiddleware, async (req, res) => {
   try {
-    const { businessName, description, products, faq, policies, tone, accountType, toneMode, customInstructions, aiEnabled } = req.body;
+    const { agentName, businessName, description, products, faq, policies, tone, accountType, toneMode, customInstructions, aiEnabled } = req.body;
     
     const updateData = {};
+    if (agentName !== undefined) updateData.agentName = agentName;
     if (businessName !== undefined) updateData.businessName = businessName;
     if (description !== undefined) updateData.description = description;
     if (products !== undefined) updateData.products = products;

@@ -26,6 +26,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 
 interface BusinessData {
   businessName: string;
+  agentName: string;
   description: string;
   products: string;
   faq: string;
@@ -40,6 +41,7 @@ interface BusinessData {
 export default function BusinessForm() {
   const [formData, setFormData] = useState<BusinessData>({
     businessName: '',
+    agentName: '',
     description: '',
     products: '',
     faq: '',
@@ -62,6 +64,7 @@ export default function BusinessForm() {
         if (res && res.business) {
           setFormData({
             businessName: res.business.businessName || '',
+            agentName: res.business.agentName || '',
             description: res.business.description || '',
             products: res.business.products || '',
             faq: res.business.faq || '',
@@ -104,6 +107,7 @@ export default function BusinessForm() {
 
     setFormData({
       businessName: '',
+      agentName: '',
       description: '',
       products: '',
       faq: '',
@@ -133,6 +137,7 @@ export default function BusinessForm() {
       if (res && res.business) {
         setFormData({
           businessName: res.business.businessName ?? dataToSave.businessName,
+          agentName: res.business.agentName ?? dataToSave.agentName,
           description: res.business.description ?? dataToSave.description,
           products: res.business.products ?? dataToSave.products,
           faq: res.business.faq ?? dataToSave.faq,
@@ -158,6 +163,7 @@ export default function BusinessForm() {
         if (res && res.business) {
           setFormData({
             businessName: res.business.businessName ?? dataToSave.businessName,
+            agentName: res.business.agentName ?? dataToSave.agentName,
             description: res.business.description ?? dataToSave.description,
             products: res.business.products ?? dataToSave.products,
             faq: res.business.faq ?? dataToSave.faq,
@@ -440,21 +446,39 @@ export default function BusinessForm() {
           </button>
         </div>
 
-        {/* Name / Title */}
-        <div className="space-y-2">
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-600">
-            Account / Business / Persona Name
-          </label>
-          <input
-            type="text"
-            name="businessName"
-            value={formData.businessName}
-            onChange={handleChange}
-            placeholder="e.g. TechWithEasin / ScaleUp Web Agency"
-            className="w-full px-4 py-3.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 focus:outline-none transition-all placeholder:text-slate-400 font-medium"
-            required
-          />
-          <p className="text-[11px] text-slate-500 font-medium">The official name AI uses when introducing itself.</p>
+        {/* Business Name & Custom AI Agent Name */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600">
+              Account / Business / Persona Name
+            </label>
+            <input
+              type="text"
+              name="businessName"
+              value={formData.businessName}
+              onChange={handleChange}
+              placeholder="e.g. TechWithEasin / ScaleUp Web Agency"
+              className="w-full px-4 py-3.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 focus:outline-none transition-all placeholder:text-slate-400 font-medium"
+              required
+            />
+            <p className="text-[11px] text-slate-500 font-medium">The official business/brand name.</p>
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center justify-between">
+              <span>AI Agent / Assistant Name (বোটের নাম)</span>
+              <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[10px] font-extrabold">NEW ✨</span>
+            </label>
+            <input
+              type="text"
+              name="agentName"
+              value={formData.agentName}
+              onChange={handleChange}
+              placeholder="e.g. Maya, Anika, Rahim, Smart Representative..."
+              className="w-full px-4 py-3.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 focus:outline-none transition-all placeholder:text-slate-400 font-medium"
+            />
+            <p className="text-[11px] text-slate-500 font-medium">কাস্টমার বোটকে নাম জিজ্ঞেস করলে বোট নিজের নাম হিসেবে এটি বলবে (যেমন: "আমি মায়া, ScaleUp Web-এর পক্ষ থেকে বলছি")।</p>
+          </div>
         </div>
 
         {/* About / Overview */}
