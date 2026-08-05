@@ -55,7 +55,7 @@ export default function BusinessForm() {
     const loadBusinessData = async () => {
       try {
         const res = await fetchApi<{ business: BusinessData }>('/api/business');
-        if (res.business) {
+        if (res && res.business) {
           setFormData({
             businessName: res.business.businessName || '',
             description: res.business.description || '',
@@ -116,19 +116,36 @@ export default function BusinessForm() {
     setMsg(null);
 
     try {
-      await fetchApi('/api/business', {
+      const res = await fetchApi<{ business: BusinessData }>('/api/business', {
         method: 'PUT',
         body: JSON.stringify(formData),
       });
 
-      setMsg({ type: 'success', text: 'AI Assistant memory & tone settings updated successfully!' });
+      if (res && res.business) {
+        setFormData((prev) => ({
+          ...prev,
+          accountType: res.business.accountType || prev.accountType,
+          toneMode: res.business.toneMode || prev.toneMode,
+          customInstructions: res.business.customInstructions ?? prev.customInstructions,
+        }));
+      }
+
+      setMsg({ type: 'success', text: 'AI Assistant memory & persona settings updated successfully!' });
     } catch (err: any) {
       try {
-        await fetchApi('/api/business/profile', {
+        const res = await fetchApi<{ business: BusinessData }>('/api/business/profile', {
           method: 'POST',
           body: JSON.stringify(formData),
         });
-        setMsg({ type: 'success', text: 'AI Assistant memory & tone settings updated successfully!' });
+        if (res && res.business) {
+          setFormData((prev) => ({
+            ...prev,
+            accountType: res.business.accountType || prev.accountType,
+            toneMode: res.business.toneMode || prev.toneMode,
+            customInstructions: res.business.customInstructions ?? prev.customInstructions,
+          }));
+        }
+        setMsg({ type: 'success', text: 'AI Assistant memory & persona settings updated successfully!' });
       } catch (fallbackErr: any) {
         setMsg({ type: 'error', text: err.message || 'Failed to save settings' });
       }
