@@ -43,7 +43,7 @@ export default function Footer() {
               </div>
               <div className="flex flex-col">
                 <span className="text-xl font-extrabold tracking-tight text-white flex items-center gap-1.5">
-                  WpAuto<span className="text-blue-500">AI</span>
+                  Sohoj<span className="text-blue-500">Reply</span>
                 </span>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                   SaaS Engine
@@ -164,7 +164,7 @@ export default function Footer() {
 
         {/* BOTTOM BAR: Copyright & Tech Details */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-medium">
-          <p>© {new Date().getFullYear()} WpAutoAI SaaS Engine. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Sohoj Reply SaaS Engine. All rights reserved.</p>
           
           <div className="flex items-center gap-4 text-slate-400 text-[11px]">
             <span className="flex items-center gap-1">

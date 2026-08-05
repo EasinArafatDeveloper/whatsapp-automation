@@ -14,12 +14,13 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'Free WhatsApp Business AI Automation Platform | Auto Reply Bot',
-    template: '%s | WpAutoAI WhatsApp Automation',
+    default: 'Sohoj Reply - Free WhatsApp Business AI Automation Platform | Auto Reply Bot',
+    template: '%s | Sohoj Reply WhatsApp Automation',
   },
   description:
-    '100% Free WhatsApp Business AI Auto Reply Automation Platform. Connect your WhatsApp number via QR code scan and automate DeepSeek AI customer support replies for products, prices, and FAQs.',
+    'Sohoj Reply - 100% Free WhatsApp Business AI Auto Reply Automation Platform. Connect your WhatsApp number via QR code scan and automate DeepSeek AI customer support replies for products, prices, and FAQs.',
   keywords: [
+    'Sohoj Reply',
     'WhatsApp free automation',
     'free WhatsApp auto reply bot',
     'WhatsApp AI customer support',
@@ -31,9 +32,9 @@ export const metadata: Metadata = {
     'automated WhatsApp customer service',
     'WhatsApp marketing & auto reply',
   ],
-  authors: [{ name: 'WpAutoAI Team' }],
-  creator: 'WpAutoAI',
-  publisher: 'WpAutoAI',
+  authors: [{ name: 'Sohoj Reply Team' }],
+  creator: 'Sohoj Reply',
+  publisher: 'Sohoj Reply',
   formatDetection: {
     email: false,
     address: false,
@@ -43,17 +44,17 @@ export const metadata: Metadata = {
     canonical: siteUrl,
   },
   openGraph: {
-    title: 'Free WhatsApp Business AI Automation Platform | WpAutoAI',
+    title: 'Free WhatsApp Business AI Automation Platform | Sohoj Reply',
     description:
       'Automate your WhatsApp Business customer service 24/7 with DeepSeek AI & Baileys socket. Free QR scan setup—no paid Meta API required.',
     url: siteUrl,
-    siteName: 'WpAutoAI',
+    siteName: 'Sohoj Reply',
     locale: 'en_US',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Free WhatsApp Business AI Automation Platform',
+    title: 'Sohoj Reply - Free WhatsApp Business AI Automation Platform',
     description: 'Automate WhatsApp customer support 24/7 with DeepSeek AI. Free QR scan setup.',
   },
   robots: {
@@ -84,7 +85,7 @@ export default function RootLayout({
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'WpAutoAI - WhatsApp Business AI Automation',
+    name: 'Sohoj Reply - WhatsApp Business AI Automation',
     operatingSystem: 'All',
     applicationCategory: 'BusinessApplication',
     offers: {

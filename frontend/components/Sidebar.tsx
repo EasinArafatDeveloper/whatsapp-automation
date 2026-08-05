@@ -96,7 +96,7 @@ export default function Sidebar({ onCloseMobile }: SidebarProps) {
           </div>
           <div>
             <span className="font-extrabold text-lg text-slate-900 tracking-tight">
-              WpAuto<span className="text-blue-600">AI</span>
+              Sohoj<span className="text-blue-600">Reply</span>
             </span>
             <span className="block text-[10px] text-blue-600 font-bold uppercase tracking-widest">
               SaaS Engine

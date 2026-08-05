@@ -22,7 +22,7 @@ export default function Navbar() {
           </div>
           <div>
             <span className="text-xl font-extrabold text-slate-900 tracking-tight">
-              WpAuto<span className="text-blue-600">AI</span>
+              Sohoj<span className="text-blue-600">Reply</span>
             </span>
             <span className="block text-[10px] text-slate-500 font-semibold tracking-wider uppercase">
               WhatsApp Business Support

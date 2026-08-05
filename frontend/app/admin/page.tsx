@@ -177,7 +177,7 @@ export default function SuperAdminDashboard() {
             </div>
             <div>
               <h1 className="font-extrabold text-white text-base leading-tight">Super Admin Console</h1>
-              <p className="text-xs text-slate-500 font-medium">WpAutoAI Platform Management</p>
+              <p className="text-xs text-slate-500 font-medium">Sohoj Reply Platform Management</p>
             </div>
           </div>
           <div className="flex items-center gap-3">

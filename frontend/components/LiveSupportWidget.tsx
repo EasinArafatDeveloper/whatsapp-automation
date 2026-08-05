@@ -24,15 +24,15 @@ interface ChatMsg {
 const KNOWLEDGE_BASE_RESPONSES: { keywords: string[]; reply: string }[] = [
   {
     keywords: ['কানেক্ট', 'connect', 'qr', 'code', 'কিভাবে', 'how'],
-    reply: 'WpAutoAI তে আপনার হোয়াটসঅ্যাপ কানেক্ট করা একদম সহজ! 🚀\n\n১. ড্যাশবোর্ডে গিয়ে "Connect WhatsApp" অপশনে যান।\n২. আপনি আপনার ফোনের WhatsApp > Linked Devices এ গিয়ে QR Code স্ক্যান করে অথবা ৮-ডিজিটের পেয়ারিং কোড টাইপ করে মুহূর্তেই ফ্রিতে কানেক্ট করতে পারবেন। কোনো paid Meta API লাগবে না!',
+    reply: 'Sohoj Reply তে আপনার হোয়াটসঅ্যাপ কানেক্ট করা একদম সহজ! 🚀\n\n১. ড্যাশবোর্ডে গিয়ে "Connect WhatsApp" অপশনে যান।\n২. আপনি আপনার ফোনের WhatsApp > Linked Devices এ গিয়ে QR Code স্ক্যান করে অথবা ৮-ডিজিটের পেয়ারিং কোড টাইপ করে মুহূর্তেই ফ্রিতে কানেক্ট করতে পারবেন। কোনো paid Meta API লাগবে না!',
   },
   {
     keywords: ['দাম', 'প্রাইস', 'price', 'fee', 'charge', 'কোর্স', 'ফ্রি', 'free'],
-    reply: 'আমাদের WpAutoAI প্লাটফর্মে Baileys Socket এর মাধ্যমে হোয়াটসঅ্যাপ কানেক্ট করা এবং বোট ব্যবহার করা একদম ফ্রি! 🌸 কোনো মেটা এপিআই ভেরিফিকেশন ফি বা প্রতি মেসেজে চার্জ কাটবে না।',
+    reply: 'আমাদের Sohoj Reply প্লাটফর্মে Baileys Socket এর মাধ্যমে হোয়াটসঅ্যাপ কানেক্ট করা এবং বোট ব্যবহার করা একদম ফ্রি! 🌸 কোনো মেটা এপিআই ভেরিফিকেশন ফি বা প্রতি মেসেজে চার্জ কাটবে না।',
   },
   {
     keywords: ['deepseek', 'ai', 'কাজের', 'কাজ', 'work', 'বোট'],
-    reply: 'WpAutoAI ব্যবহার করে শক্তিশালী DeepSeek V3 AI মডেল। 🤖 আপনি ড্যাশবোর্ডে আপনার প্রডাক্ট, প্রাইস, FAQ ও বিজনেস রুলস লিখে দিলে, কাস্টমারদের প্রশ্নের ঠিক সেই অনুযায়ী মানুষের মতো নিখুঁত বাংলায় উত্তর দেবে।',
+    reply: 'Sohoj Reply ব্যবহার করে শক্তিশালী DeepSeek V3 AI মডেল। 🤖 আপনি ড্যাশবোর্ডে আপনার প্রডাক্ট, প্রাইস, FAQ ও বিজনেস রুলস লিখে দিলে, কাস্টমারদের প্রশ্নের ঠিক সেই অনুযায়ী মানুষের মতো নিখুঁত বাংলায় উত্তর দেবে।',
   },
   {
     keywords: ['সাপোর্ট', 'support', 'help', 'ইমেইল', 'email', 'যোগাযোগ', 'contact'],
@@ -43,7 +43,7 @@ const KNOWLEDGE_BASE_RESPONSES: { keywords: string[]; reply: string }[] = [
 const DEFAULT_WELCOME_MSG: ChatMsg = {
   id: 'welcome-1',
   sender: 'ai',
-  text: 'আসসালামু আলাইকুম! 👋 WpAutoAI AI সাপোর্টে আপনাকে স্বাগতম। আমাদের প্লাটফর্ম, হোয়াটসঅ্যাপ কানেকশন বা AI ফিচার সম্পর্কে যেকোনো প্রশ্ন করতে পারেন!',
+  text: 'আসসালামু আলাইকুম! 👋 Sohoj Reply AI সাপোর্টে আপনাকে স্বাগতম। আমাদের প্লাটফর্ম, হোয়াটসঅ্যাপ কানেকশন বা AI ফিচার সম্পর্কে যেকোনো প্রশ্ন করতে পারেন!',
   time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
 };
 
@@ -94,7 +94,7 @@ export default function LiveSupportWidget() {
       }
 
       if (!matchedReply) {
-        matchedReply = `ধন্যবাদ আপনার মেসেজের জন্য! 😊 WpAutoAI সম্পূর্ণ ফ্রি-তে আপনার হোয়াটসঅ্যাপে DeepSeek AI অটো রিপ্লাই সেটআপ করে দেয়।\n\nআরও বিস্তারিত জানতে বা কাস্টম সেটআপের জন্য আমাদের মেইল করুন:\n📧 contact.scaleupweb@gmail.com`;
+        matchedReply = `ধন্যবাদ আপনার মেসেজের জন্য! 😊 Sohoj Reply সম্পূর্ণ ফ্রি-তে আপনার হোয়াটসঅ্যাপে DeepSeek AI অটো রিপ্লাই সেটআপ করে দেয়।\n\nআরও বিস্তারিত জানতে বা কাস্টম সেটআপের জন্য আমাদের মেইল করুন:\n📧 contact.scaleupweb@gmail.com`;
       }
 
       const aiMsg: ChatMsg = {
@@ -155,7 +155,7 @@ export default function LiveSupportWidget() {
               </div>
               <div className="text-left">
                 <h3 className="text-sm font-extrabold text-white flex items-center gap-1.5">
-                  WpAutoAI Assistant <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
+                  Sohoj Reply Assistant <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
                 </h3>
                 <p className="text-[10px] text-blue-100 font-semibold flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -192,7 +192,7 @@ export default function LiveSupportWidget() {
                   <div className="bg-white text-slate-800 p-3.5 rounded-2xl rounded-tl-none max-w-[88%] border border-slate-200/90 shadow-sm space-y-1.5">
                     <div className="flex items-center justify-between text-[10px] font-bold text-blue-600 pb-1 border-b border-slate-100">
                       <span className="flex items-center gap-1">
-                        <Bot className="w-3.5 h-3.5 text-blue-600" /> WpAutoAI Support
+                        <Bot className="w-3.5 h-3.5 text-blue-600" /> Sohoj Reply Support
                       </span>
                       <span className="text-[9px] text-slate-400 font-medium">{msg.time}</span>
                     </div>
@@ -242,7 +242,7 @@ export default function LiveSupportWidget() {
               value={inputVal}
               onChange={(e) => setInputVal(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Ask anything about WpAutoAI..."
+              placeholder="Ask anything about Sohoj Reply..."
               className="flex-1 px-4 py-3 rounded-2xl bg-slate-100/80 border border-slate-200 text-slate-900 text-xs focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 focus:outline-none transition-all placeholder:text-slate-400 font-medium"
             />
             <button

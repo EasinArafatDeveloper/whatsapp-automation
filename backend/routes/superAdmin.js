@@ -11,7 +11,7 @@ const User = require('../models/User');
 const Business = require('../models/Business');
 const Lead = require('../models/Lead');
 
-const SUPER_ADMIN_EMAIL = process.env.SUPER_ADMIN_EMAIL || 'admin@wpautoai.com';
+const SUPER_ADMIN_EMAIL = process.env.SUPER_ADMIN_EMAIL || 'admin@sohojreply.com';
 const SUPER_ADMIN_PASSWORD = process.env.SUPER_ADMIN_PASSWORD || 'SuperAdmin@2026!';
 const SUPER_ADMIN_SECRET = process.env.SUPER_ADMIN_SECRET || process.env.JWT_SECRET + '_superadmin';
 

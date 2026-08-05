@@ -9,7 +9,7 @@ export default function RootLoading() {
       <div className="relative z-10 flex flex-col items-center gap-4 bg-white/80 backdrop-blur-xl p-8 rounded-3xl border border-slate-200 shadow-xl">
         <LoadingSpinner size="xl" variant="blue" />
         <div className="text-center">
-          <p className="text-sm font-bold text-slate-800">Loading WpAutoAI...</p>
+          <p className="text-sm font-bold text-slate-800">Loading Sohoj Reply...</p>
           <p className="text-xs text-slate-500 font-medium mt-0.5">Please wait a moment</p>
         </div>
       </div>

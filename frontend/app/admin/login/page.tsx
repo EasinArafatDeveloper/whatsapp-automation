@@ -54,7 +54,7 @@ export default function SuperAdminLoginPage() {
               Super Admin Portal
             </h1>
             <p className="text-sm text-slate-400 font-medium mt-1">
-              WpAutoAI — Platform Management Console
+              Sohoj Reply — Platform Management Console
             </p>
           </div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-900/40 border border-violet-700/40 text-violet-300 text-xs font-bold">
@@ -77,7 +77,7 @@ export default function SuperAdminLoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  placeholder="admin@wpautoai.com"
+                  placeholder="admin@sohojreply.com"
                   className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/30 transition-all font-medium"
                 />
               </div>
@@ -144,7 +144,7 @@ export default function SuperAdminLoginPage() {
         </div>
 
         <p className="text-center text-xs text-slate-700 mt-6 font-medium">
-          WpAutoAI SaaS Platform · Unauthorized access is prohibited
+          Sohoj Reply SaaS Platform · Unauthorized access is prohibited
         </p>
       </div>
     </div>

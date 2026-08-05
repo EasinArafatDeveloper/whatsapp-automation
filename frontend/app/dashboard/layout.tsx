@@ -42,7 +42,7 @@ export default function DashboardLayout({
             <MessageSquare className="w-4 h-4 fill-current" />
           </div>
           <span className="font-extrabold text-base text-slate-900">
-            WpAuto<span className="text-blue-600">AI</span>
+            Sohoj<span className="text-blue-600">Reply</span>
           </span>
         </Link>
 
