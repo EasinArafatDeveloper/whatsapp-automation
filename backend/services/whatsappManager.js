@@ -308,8 +308,17 @@ const connectSession = async (userId, phoneNumber = null) => {
 
           if (!textMessage.trim()) continue;
 
-          const senderJid = msg.key.remoteJid;
-          console.log(`[User ${userId}] Incoming WA msg from ${senderJid}: "${textMessage}"`);
+          let senderJid = msg.key.remoteJid;
+          let phoneJid = senderJid;
+
+          // Resolve real phone JID (@s.whatsapp.net) if message comes from LID (@lid)
+          if (msg.key.remoteJidAlt && msg.key.remoteJidAlt.endsWith('@s.whatsapp.net')) {
+            phoneJid = msg.key.remoteJidAlt;
+          } else if (msg.key.participant && msg.key.participant.endsWith('@s.whatsapp.net')) {
+            phoneJid = msg.key.participant;
+          }
+
+          console.log(`[User ${userId}] Incoming WA msg from ${senderJid} (PhoneJid: ${phoneJid}): "${textMessage}"`);
 
           // Use cached business profile (no DB hit per message)
           const currentSession = activeSessions.get(strUserId);
@@ -323,7 +332,7 @@ const connectSession = async (userId, phoneNumber = null) => {
             await sock.sendMessage(senderJid, { text: replyText });
             console.log(`[User ${userId}] Auto-replied to ${senderJid}: "${replyText}"`);
 
-            updateCustomerLead(userId, senderJid, pushName, textMessage, replyText);
+            updateCustomerLead(userId, phoneJid, pushName, textMessage, replyText);
           }
         }
       } catch (err) {

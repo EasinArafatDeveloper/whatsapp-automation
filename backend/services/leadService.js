@@ -75,12 +75,13 @@ const extractLocation = (message, existingLocation) => {
 
 /**
  * Validate and format customer WhatsApp phone number.
- * Filters out group IDs (@g.us), LIDs (@lid), newsletters (@newsletter), and non-phone IDs.
+ * Ensures only REAL customer phone numbers (e.g., +880 1645-650504) are stored as leads.
+ * Rejects WhatsApp internal LIDs (@lid), Groups (@g.us), Broadcasts, and random pseudo-IDs.
  */
 const formatPhoneNumber = (senderJid) => {
   if (!senderJid || typeof senderJid !== 'string') return null;
 
-  // Filter out non-individual chats (groups, LIDs, newsletters, broadcast)
+  // Reject non-individual chats (groups, LIDs, newsletters, broadcast)
   if (
     senderJid.endsWith('@g.us') ||
     senderJid.endsWith('@lid') ||
@@ -93,32 +94,38 @@ const formatPhoneNumber = (senderJid) => {
 
   const rawDigits = senderJid.split('@')[0].split(':')[0].replace(/[^0-9]/g, '');
 
-  // Group IDs starting with 120363 or LID pseudo-IDs starting with 128363, or invalid lengths
-  if (
-    rawDigits.startsWith('120363') ||
-    rawDigits.startsWith('128363') ||
-    rawDigits.length < 8 ||
-    rawDigits.length > 15
-  ) {
+  // Must be between 8 and 14 digits
+  if (rawDigits.length < 8 || rawDigits.length > 14) return null;
+
+  // Real BD numbers start with 88013 - 88019 (13 digits) or 013 - 019 (11 digits)
+  if (rawDigits.startsWith('880')) {
+    if (rawDigits.length === 13 && /^8801[3-9]\d{8}$/.test(rawDigits)) {
+      const op = rawDigits.slice(3, 7);
+      const rest = rawDigits.slice(7);
+      return `+880 ${op}-${rest}`;
+    }
+    // If starts with 880 but invalid BD mobile pattern (e.g. random pseudo-ID)
     return null;
   }
 
-  // Format Bangladesh numbers nicely: 8801645650504 -> +880 1645-650504
-  if (rawDigits.startsWith('880') && rawDigits.length === 13) {
-    const op = rawDigits.slice(3, 7);
-    const rest = rawDigits.slice(7);
-    return `+880 ${op}-${rest}`;
-  }
-
-  // Format BD numbers without country code (e.g. 01712345678 -> +880 1712-345678)
-  if (rawDigits.startsWith('01') && rawDigits.length === 11) {
+  if (rawDigits.startsWith('01') && rawDigits.length === 11 && /^01[3-9]\d{8}$/.test(rawDigits)) {
     const op = rawDigits.slice(1, 5);
     const rest = rawDigits.slice(5);
     return `+880 ${op}-${rest}`;
   }
 
-  // Generic international number format
-  return `+${rawDigits}`;
+  // Common International Phone Patterns (US/India/Saudi/UAE/UK)
+  if (/^(1\d{10}|91[6-9]\d{9}|9665\d{8}|9715\d{8}|447\d{9})$/.test(rawDigits)) {
+    return `+${rawDigits}`;
+  }
+
+  // If senderJid comes from standard @s.whatsapp.net and has valid phone length (9-13 digits), format with +
+  if (senderJid.endsWith('@s.whatsapp.net') && rawDigits.length >= 9 && rawDigits.length <= 13) {
+    return `+${rawDigits}`;
+  }
+
+  // Reject all other unverified pseudo-IDs (like 41889218736332, 166533833787573, etc.)
+  return null;
 };
 
 /**
