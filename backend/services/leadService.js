@@ -74,12 +74,63 @@ const extractLocation = (message, existingLocation) => {
 };
 
 /**
+ * Validate and format customer WhatsApp phone number.
+ * Filters out group IDs (@g.us), LIDs (@lid), newsletters (@newsletter), and non-phone IDs.
+ */
+const formatPhoneNumber = (senderJid) => {
+  if (!senderJid || typeof senderJid !== 'string') return null;
+
+  // Filter out non-individual chats (groups, LIDs, newsletters, broadcast)
+  if (
+    senderJid.endsWith('@g.us') ||
+    senderJid.endsWith('@lid') ||
+    senderJid.endsWith('@newsletter') ||
+    senderJid.endsWith('@broadcast') ||
+    senderJid.endsWith('@hosted')
+  ) {
+    return null;
+  }
+
+  const rawDigits = senderJid.split('@')[0].split(':')[0].replace(/[^0-9]/g, '');
+
+  // Group IDs starting with 120363 or LID pseudo-IDs starting with 128363, or invalid lengths
+  if (
+    rawDigits.startsWith('120363') ||
+    rawDigits.startsWith('128363') ||
+    rawDigits.length < 8 ||
+    rawDigits.length > 15
+  ) {
+    return null;
+  }
+
+  // Format Bangladesh numbers nicely: 8801645650504 -> +880 1645-650504
+  if (rawDigits.startsWith('880') && rawDigits.length === 13) {
+    const op = rawDigits.slice(3, 7);
+    const rest = rawDigits.slice(7);
+    return `+880 ${op}-${rest}`;
+  }
+
+  // Format BD numbers without country code (e.g. 01712345678 -> +880 1712-345678)
+  if (rawDigits.startsWith('01') && rawDigits.length === 11) {
+    const op = rawDigits.slice(1, 5);
+    const rest = rawDigits.slice(5);
+    return `+880 ${op}-${rest}`;
+  }
+
+  // Generic international number format
+  return `+${rawDigits}`;
+};
+
+/**
  * Automatically create or update a Lead whenever a customer chats
  */
 const updateCustomerLead = async (userId, senderJid, customerName, lastMessage, aiReplyText) => {
   try {
-    const rawNumber = senderJid.split('@')[0].split(':')[0];
-    const formattedNumber = rawNumber.startsWith('880') ? `+${rawNumber}` : `+${rawNumber}`;
+    const formattedNumber = formatPhoneNumber(senderJid);
+    if (!formattedNumber) {
+      console.log(`[Lead] Skipping non-customer JID: ${senderJid}`);
+      return;
+    }
 
     const { intentLabel, priority } = detectIntent(lastMessage);
     const conversationEntry = `Customer: "${lastMessage}"\nAI: "${aiReplyText}"`;

@@ -14,6 +14,10 @@ import {
   MessageSquare,
   Zap,
   Users,
+  ChevronRight,
+  HelpCircle,
+  Smartphone,
+  X,
 } from 'lucide-react';
 
 import { DashboardOverviewSkeleton } from '@/components/SkeletonLoader';
@@ -35,6 +39,7 @@ export default function DashboardOverviewPage() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [connStatus, setConnStatus] = useState<ConnectionStatus>({ status: 'disconnected' });
   const [leadsCount, setLeadsCount] = useState<number>(0);
+  const [showConnectModal, setShowConnectModal] = useState<boolean>(false);
   const [bizSummary, setBizSummary] = useState<BusinessSummary>({
     businessName: 'My Business',
     aiEnabled: true,
@@ -117,6 +122,202 @@ export default function DashboardOverviewPage() {
               Connect WhatsApp
             </Link>
           </div>
+        </div>
+      </div>
+
+      {/* 3-Step Setup Chain Section */}
+      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+              <Zap className="w-5 h-5 text-blue-600 animate-bounce" />
+              Getting Started — Setup Steps
+            </h2>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
+              Complete these steps to activate full WhatsApp AI auto-reply for your business
+            </p>
+          </div>
+
+          <div className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
+            <span>Progress:</span>
+            <span className="text-blue-600 font-extrabold">
+              {[connStatus.status === 'connected', bizSummary.hasKnowledgeBase, bizSummary.templatesCount > 0].filter(Boolean).length} / 3 Complete
+            </span>
+          </div>
+        </div>
+
+        {/* 3 Steps Chain Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 relative">
+          
+          {/* STEP 1: Connect WhatsApp */}
+          <div
+            onClick={() => setShowConnectModal(true)}
+            className={`group cursor-pointer p-5 rounded-2xl border transition-all duration-300 relative flex flex-col justify-between space-y-4 hover:shadow-lg active:scale-98 ${
+              connStatus.status === 'connected'
+                ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20'
+                : 'bg-gradient-to-br from-blue-50/90 to-indigo-50/80 text-slate-900 border-blue-500/40 ring-2 ring-blue-500/20 shadow-sm animate-pulse-subtle'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className={`p-3 rounded-xl border flex items-center justify-center ${
+                connStatus.status === 'connected'
+                  ? 'bg-white/20 text-white border-white/30'
+                  : 'bg-blue-600 text-white border-blue-500'
+              }`}>
+                <Smartphone className="w-6 h-6" />
+              </div>
+              <span className={`text-xs font-extrabold px-3 py-1 rounded-full border flex items-center gap-1 ${
+                connStatus.status === 'connected'
+                  ? 'bg-white text-blue-700 border-white'
+                  : 'bg-blue-600 text-white border-blue-500 animate-pulse'
+              }`}>
+                {connStatus.status === 'connected' ? (
+                  <>
+                    <CheckCircle2 className="w-3.5 h-3.5" /> 1. Connected
+                  </>
+                ) : (
+                  '1. Connect WhatsApp'
+                )}
+              </span>
+            </div>
+
+            <div>
+              <h3 className="font-extrabold text-base flex items-center gap-1.5">
+                Connect WhatsApp
+                <HelpCircle className={`w-4 h-4 opacity-75 group-hover:scale-110 transition-transform ${
+                  connStatus.status === 'connected' ? 'text-blue-100' : 'text-blue-600'
+                }`} />
+              </h3>
+              <p className={`text-xs font-medium mt-1 leading-relaxed ${
+                connStatus.status === 'connected' ? 'text-blue-100' : 'text-slate-600'
+              }`}>
+                Scan QR code to connect your WhatsApp Business account. Click to view quick connection guide!
+              </p>
+            </div>
+
+            <div className="pt-2 border-t border-current/10 flex items-center justify-between text-xs font-bold">
+              <span className={connStatus.status === 'connected' ? 'text-blue-100' : 'text-blue-600'}>
+                {connStatus.status === 'connected' ? '✓ WhatsApp Linked' : 'Click to see how to connect →'}
+              </span>
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </div>
+
+          {/* STEP 2: Set Business Knowledge (AI) */}
+          <Link
+            href="/dashboard/business"
+            className={`group p-5 rounded-2xl border transition-all duration-300 relative flex flex-col justify-between space-y-4 hover:shadow-lg active:scale-98 ${
+              bizSummary.hasKnowledgeBase
+                ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20'
+                : connStatus.status === 'connected'
+                ? 'bg-gradient-to-br from-blue-50/90 to-indigo-50/80 text-slate-900 border-blue-500/40 ring-2 ring-blue-500/30 animate-pulse'
+                : 'bg-slate-50 text-slate-700 border-slate-200'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className={`p-3 rounded-xl border flex items-center justify-center ${
+                bizSummary.hasKnowledgeBase
+                  ? 'bg-white/20 text-white border-white/30'
+                  : 'bg-indigo-600 text-white border-indigo-500'
+              }`}>
+                <Building2 className="w-6 h-6" />
+              </div>
+              <span className={`text-xs font-extrabold px-3 py-1 rounded-full border flex items-center gap-1 ${
+                bizSummary.hasKnowledgeBase
+                  ? 'bg-white text-blue-700 border-white'
+                  : connStatus.status === 'connected'
+                  ? 'bg-indigo-600 text-white border-indigo-500 animate-pulse'
+                  : 'bg-slate-200 text-slate-700 border-slate-300'
+              }`}>
+                {bizSummary.hasKnowledgeBase ? (
+                  <>
+                    <CheckCircle2 className="w-3.5 h-3.5" /> 2. Completed
+                  </>
+                ) : (
+                  '2. AI Knowledge'
+                )}
+              </span>
+            </div>
+
+            <div>
+              <h3 className="font-extrabold text-base">Set Business Knowledge</h3>
+              <p className={`text-xs font-medium mt-1 leading-relaxed ${
+                bizSummary.hasKnowledgeBase ? 'text-blue-100' : 'text-slate-600'
+              }`}>
+                Add product info, FAQs & business rules so AI knows how to answer customer questions automatically.
+              </p>
+            </div>
+
+            <div className="pt-2 border-t border-current/10 flex items-center justify-between text-xs font-bold">
+              <span className={bizSummary.hasKnowledgeBase ? 'text-blue-100' : 'text-blue-600'}>
+                {bizSummary.hasKnowledgeBase ? '✓ Knowledge Base Active' : 'Setup AI Knowledge →'}
+              </span>
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </Link>
+
+          {/* STEP 3: Fallback Templates (OPTIONAL) */}
+          <Link
+            href="/dashboard/templates"
+            className={`group p-5 rounded-2xl border transition-all duration-300 relative flex flex-col justify-between space-y-4 hover:shadow-lg active:scale-98 ${
+              bizSummary.templatesCount > 0
+                ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20'
+                : bizSummary.hasKnowledgeBase
+                ? 'bg-gradient-to-br from-blue-50/90 to-indigo-50/80 text-slate-900 border-blue-500/40 ring-2 ring-blue-500/20'
+                : 'bg-slate-50 text-slate-700 border-slate-200'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className={`p-3 rounded-xl border flex items-center justify-center ${
+                bizSummary.templatesCount > 0
+                  ? 'bg-white/20 text-white border-white/30'
+                  : 'bg-blue-600 text-white border-blue-500'
+              }`}>
+                <FileCode2 className="w-6 h-6" />
+              </div>
+              
+              <div className="flex items-center gap-1.5">
+                <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                  bizSummary.templatesCount > 0
+                    ? 'bg-white/20 text-white border border-white/30'
+                    : 'bg-amber-100 text-amber-800 border border-amber-300'
+                }`}>
+                  Optional (না করলেও চলবে)
+                </span>
+
+                <span className={`text-xs font-extrabold px-2.5 py-1 rounded-full border flex items-center gap-1 ${
+                  bizSummary.templatesCount > 0
+                    ? 'bg-white text-blue-700 border-white'
+                    : 'bg-slate-200 text-slate-700 border-slate-300'
+                }`}>
+                  {bizSummary.templatesCount > 0 ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5" /> 3. Set
+                    </>
+                  ) : (
+                    '3. Ready Templates'
+                  )}
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-extrabold text-base">Fallback Templates</h3>
+              <p className={`text-xs font-medium mt-1 leading-relaxed ${
+                bizSummary.templatesCount > 0 ? 'text-blue-100' : 'text-slate-600'
+              }`}>
+                Set ready-made quick response templates. <strong className="underline font-bold">Note:</strong> AI will answer automatically even without templates!
+              </p>
+            </div>
+
+            <div className="pt-2 border-t border-current/10 flex items-center justify-between text-xs font-bold">
+              <span className={bizSummary.templatesCount > 0 ? 'text-blue-100' : 'text-blue-600'}>
+                {bizSummary.templatesCount > 0 ? '✓ Templates Set' : 'Manage Templates (Optional) →'}
+              </span>
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </Link>
+
         </div>
       </div>
 
@@ -460,6 +661,60 @@ export default function DashboardOverviewPage() {
           </div>
         );
       })()}
+
+      {/* Interactive Modal for Step 1 Connection Instructions */}
+      {showConnectModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white max-w-lg w-full rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6 relative">
+            <button
+              onClick={() => setShowConnectModal(false)}
+              className="absolute top-5 right-5 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100">
+                <Smartphone className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-xl font-extrabold text-slate-900">How to Connect WhatsApp</h3>
+                <p className="text-xs text-slate-500 font-medium">Follow these quick steps to link your device</p>
+              </div>
+            </div>
+
+            <div className="space-y-3 bg-slate-50 p-5 rounded-2xl border border-slate-200 text-xs font-medium text-slate-700">
+              <div className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-blue-600 text-white font-extrabold flex items-center justify-center shrink-0">1</span>
+                <p className="pt-0.5">Open <strong>WhatsApp</strong> on your mobile phone.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-blue-600 text-white font-extrabold flex items-center justify-center shrink-0">2</span>
+                <p className="pt-0.5">Go to <strong>Settings</strong> (or 3 dots menu) &gt; <strong>Linked Devices</strong>.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-blue-600 text-white font-extrabold flex items-center justify-center shrink-0">3</span>
+                <p className="pt-0.5">Tap <strong>Link a Device</strong> and scan the QR Code on our Connect page!</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                onClick={() => setShowConnectModal(false)}
+                className="flex-1 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs border border-slate-300 transition-all"
+              >
+                Close Guide
+              </button>
+              <Link
+                href="/dashboard/connect"
+                className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-all text-center shadow-md shadow-blue-600/20"
+              >
+                Go to Connect Page →
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

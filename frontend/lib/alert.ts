@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 export class showToast {
   static success(message: string) {
     toast.success(message, {
+      id: message,
       duration: 3500,
       position: 'top-right',
       style: {
@@ -22,6 +23,7 @@ export class showToast {
 
   static error(message: string) {
     toast.error(message, {
+      id: message,
       duration: 4000,
       position: 'top-right',
       style: {

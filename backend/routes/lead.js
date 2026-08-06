@@ -6,6 +6,16 @@ const authMiddleware = require('../middleware/auth');
 // GET /api/leads - Fetch all customer leads for logged-in user
 router.get('/', authMiddleware, async (req, res) => {
   try {
+    // Delete old garbage lead entries created from internal WhatsApp IDs (groups @g.us, LIDs @lid, etc.)
+    await Lead.deleteMany({
+      user: req.user.id,
+      $or: [
+        { customerNumber: { $regex: /120363/ } },
+        { customerNumber: { $regex: /128363/ } },
+        { customerNumber: { $regex: /@/ } },
+      ],
+    });
+
     const leads = await Lead.find({ user: req.user.id }).sort({ updatedAt: -1 });
     res.json({ leads });
   } catch (error) {
