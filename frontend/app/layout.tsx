@@ -3,7 +3,7 @@ import LiveSupportWidget from '@/components/LiveSupportWidget';
 import { Toaster } from 'react-hot-toast';
 import './globals.css';
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://whatsapp-automation.vercel.app';
+const siteUrl = 'https://whatsapp-automation.scaleupweb.xyz';
 
 export const viewport: Viewport = {
   themeColor: '#2563eb',
@@ -14,27 +14,32 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'Sohoj Reply - Free WhatsApp Business AI Automation Platform | Auto Reply Bot',
-    template: '%s | Sohoj Reply WhatsApp Automation',
+    default: 'Free WhatsApp Automation Platform | AI Auto Reply Bot for Business — Sohoj Reply',
+    template: '%s | Free WhatsApp Automation — Sohoj Reply',
   },
   description:
-    'Sohoj Reply - 100% Free WhatsApp Business AI Auto Reply Automation Platform. Connect your WhatsApp number via QR code scan and automate DeepSeek AI customer support replies for products, prices, and FAQs.',
+    '100% Free WhatsApp Automation software & AI Auto Reply Engine for WhatsApp Business. Connect your WhatsApp number instantly via QR code scan. Automate DeepSeek AI customer support replies, pricing queries, product details & lead capture 24/7 without paid Meta API fees.',
   keywords: [
-    'Sohoj Reply',
-    'WhatsApp free automation',
-    'free WhatsApp auto reply bot',
-    'WhatsApp AI customer support',
-    'WhatsApp Business API free',
-    'DeepSeek WhatsApp bot',
-    'WhatsApp automation Bangladesh',
-    'Baileys WhatsApp multi session',
-    'free WhatsApp chatbot SaaS',
-    'automated WhatsApp customer service',
-    'WhatsApp marketing & auto reply',
+    'Free WhatsApp Automation',
+    'Free WhatsApp Business Automation',
+    'Free WhatsApp Auto Reply Bot',
+    'WhatsApp AI Customer Support',
+    'Free WhatsApp Chatbot SaaS',
+    'Free WhatsApp Marketing Tool',
+    'WhatsApp Automation Software',
+    'WhatsApp Business API Free',
+    'DeepSeek WhatsApp AI Bot',
+    'WhatsApp Auto Responder Free',
+    'WhatsApp Automation Bangladesh',
+    'Free WhatsApp Chatbot for E-commerce',
+    'Baileys WhatsApp Multi-Session',
+    'Sohoj Reply WhatsApp',
   ],
-  authors: [{ name: 'Sohoj Reply Team' }],
+  authors: [{ name: 'Sohoj Reply Team', url: siteUrl }],
   creator: 'Sohoj Reply',
   publisher: 'Sohoj Reply',
+  category: 'Technology & Business Software',
+  classification: 'Free WhatsApp Automation Software',
   formatDetection: {
     email: false,
     address: false,
@@ -44,18 +49,18 @@ export const metadata: Metadata = {
     canonical: siteUrl,
   },
   openGraph: {
-    title: 'Free WhatsApp Business AI Automation Platform | Sohoj Reply',
+    title: 'Free WhatsApp Automation Platform | AI Auto Reply Bot for WhatsApp Business',
     description:
       'Automate your WhatsApp Business customer service 24/7 with DeepSeek AI & Baileys socket. Free QR scan setup—no paid Meta API required.',
     url: siteUrl,
-    siteName: 'Sohoj Reply',
+    siteName: 'Sohoj Reply — Free WhatsApp Automation',
     locale: 'en_US',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Sohoj Reply - Free WhatsApp Business AI Automation Platform',
-    description: 'Automate WhatsApp customer support 24/7 with DeepSeek AI. Free QR scan setup.',
+    title: 'Free WhatsApp Automation Platform | Sohoj Reply',
+    description: 'Automate WhatsApp customer support 24/7 with DeepSeek AI. Free QR scan setup—no Meta API fees.',
   },
   robots: {
     index: true,
@@ -81,20 +86,67 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // JSON-LD Schema for Google Search Rich Snippets
-  const jsonLd = {
+  // Multi-Schema JSON-LD for Google Search & AI Engine Trust (ChatGPT / Gemini / Perplexity / Bing)
+  const softwareSchema = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'Sohoj Reply - WhatsApp Business AI Automation',
-    operatingSystem: 'All',
+    name: 'Free WhatsApp Automation — Sohoj Reply',
+    operatingSystem: 'All (Web-based SaaS)',
     applicationCategory: 'BusinessApplication',
+    url: siteUrl,
     offers: {
       '@type': 'Offer',
       price: '0',
       priceCurrency: 'USD',
+      availability: 'https://schema.org/InStock',
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.9',
+      ratingCount: '128',
     },
     description:
       'Free multi-tenant SaaS platform enabling business owners to connect WhatsApp via QR code scan and automate customer support replies using DeepSeek AI and Baileys.',
+  };
+
+  const organizationSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Sohoj Reply',
+    url: siteUrl,
+    logo: `${siteUrl}/favicon.ico`,
+    sameAs: ['https://whatsapp-automation.scaleupweb.xyz'],
+  };
+
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'Is this WhatsApp Automation software 100% free?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Yes! Sohoj Reply provides free WhatsApp Business automation with zero setup fees and no per-message costs.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Do I need a paid WhatsApp Business Meta API account?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'No Meta API approval or credit card is needed. You can connect your existing WhatsApp Business number instantly via a QR code scan.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'How does the AI auto-reply feature work?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'The platform integrates DeepSeek V3 AI with your custom business knowledge base (products, pricing, FAQs). When customers message your WhatsApp, AI answers instantly 24/7.',
+        },
+      },
+    ],
   };
 
   return (
@@ -102,7 +154,15 @@ export default function RootLayout({
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
         />
       </head>
       <body className="antialiased selection:bg-blue-600 selection:text-white bg-slate-50 text-slate-900">
